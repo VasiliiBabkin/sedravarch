@@ -35,27 +35,40 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cargo build --release --bin sedravarch
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Test actual native window startup
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:SEDRAVARCH_STARTUP_LOG = Join-Path $env:RUNNER_TEMP 'sedravarch-startup.log'
+          $p = Start-Process -FilePath (Resolve-Path desktop/target/release/sedravarch-native.exe).Path -ArgumentList '--smoke-test' -PassThru
+          if (-not $p.WaitForExit(15000)) { $p.Kill(); throw 'Native startup timed out' }
+          if (Test-Path $env:SEDRAVARCH_STARTUP_LOG) { Get-Content $env:SEDRAVARCH_STARTUP_LOG }
+          if ($p.ExitCode -ne 0) { throw "Native startup exit code $($p.ExitCode)" }
+          if (-not (Select-String -Path $env:SEDRAVARCH_STARTUP_LOG -Pattern 'native window created' -Quiet)) { throw 'Missing window creation marker' }
+          if (-not (Select-String -Path $env:SEDRAVARCH_STARTUP_LOG -Pattern 'native smoke timer reached' -Quiet)) { throw 'Missing message loop marker' }
       - name: Package portable preview
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Path dist, dist/portable | Out-Null
-          Copy-Item desktop/target/release/sedravarch-desktop.exe dist/portable/SedravArch.exe
+          Copy-Item desktop/target/release/sedravarch-native.exe dist/portable/SedravArch.exe
+          Copy-Item desktop/target/release/sedravarch-desktop.exe dist/portable/SedravArch-OpenGL.exe
           Copy-Item target/release/sedravarch.exe dist/portable/sedravarch-cli.exe
           Copy-Item desktop/Cargo.lock dist/desktop-Cargo.lock
           @'
-          SedravArch Desktop 0.8.0 alpha.1 — Windows x64 portable preview.
-          Run SedravArch.exe. No installer or administrator rights required.
-          Built and unit-tested on Windows CI; native windows and dialogs still require manual verification.
+          SedravArch Desktop 0.8.1 alpha.2 — Windows x64 portable preview.
+          Run SedravArch.exe (native Windows, no OpenGL). Optional SedravArch-OpenGL.exe uses the original graphical interface.
+          Startup log: %LOCALAPPDATA%\SedravArch\startup.log.
+          Native window creation and message loop tested on Windows CI. File dialogs and real user workflows still require manual verification.
           Do not use for sole copies of important data. No encryption; CRC32 is not authentication.
           '@ | Set-Content -Encoding utf8 dist/portable/README.txt
-          Compress-Archive -Path dist/portable/* -DestinationPath dist/SedravArch-0.8.0-alpha.1-windows-x64.zip
-          $zip = Get-FileHash dist/SedravArch-0.8.0-alpha.1-windows-x64.zip -Algorithm SHA256
+          Compress-Archive -Path dist/portable/* -DestinationPath dist/SedravArch-0.8.1-alpha.2-windows-x64.zip
+          $zip = Get-FileHash dist/SedravArch-0.8.1-alpha.2-windows-x64.zip -Algorithm SHA256
           "$($zip.Hash.ToLowerInvariant())  $([System.IO.Path]::GetFileName($zip.Path))" | Set-Content -Encoding ascii dist/SHA256SUMS.txt
       - name: Publish preview after passing tests
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v0.8.0-alpha.1 dist/SedravArch-0.8.0-alpha.1-windows-x64.zip dist/SHA256SUMS.txt dist/desktop-Cargo.lock --target "$env:GITHUB_SHA" --prerelease --title "SedravArch Desktop 0.8.0-alpha.1" --notes "Portable Windows x64 experimental preview. Core and headless UI tests passed in CI. Native window/dialog functionality and real-world use still need manual verification. Unsigned; do not rely on it for sole copies of important data."
+          gh release create v0.8.1-alpha.2 dist/SedravArch-0.8.1-alpha.2-windows-x64.zip dist/SHA256SUMS.txt dist/desktop-Cargo.lock --target "$env:GITHUB_SHA" --prerelease --title "SedravArch Desktop 0.8.1-alpha.2" --notes "Portable Windows x64 experimental preview. Core, headless UI tests and native window startup smoke test passed in CI. Native file dialogs and real-world use still need manual verification. Unsigned; do not rely on it for sole copies of important data."
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
