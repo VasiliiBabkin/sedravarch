@@ -1,7 +1,8 @@
 //! SedravArch experimental block codec, format v3.
 mod entropy;
 mod dictionary;
-use std::io::{self, Read, Write};
+pub mod chunking;
+use std::io::{self, BufReader, Read, Write};
 
 pub const BLOCK: usize = 65_536;
 const MAGIC: &[u8; 8] = b"SDARCH\x03\x00";
@@ -14,13 +15,20 @@ fn invalid(msg: &str) -> io::Error {
 fn crc32(data: &[u8]) -> u32 {
     !crc_update(!0u32, data)
 }
-fn crc_update(mut crc: u32, data: &[u8]) -> u32 {
-    for &b in data {
-        crc ^= u32::from(b);
-        for _ in 0..8 {
-            crc = (crc >> 1) ^ (0xedb88320 & 0u32.wrapping_sub(crc & 1));
-        }
+const fn crc_table() -> [u32;256] {
+    let mut table = [0;256];
+    let mut i=0;
+    while i<256 {
+        let mut v=i as u32;
+        let mut j=0;
+        while j<8 { v=(v>>1) ^ (0xedb88320 & 0u32.wrapping_sub(v&1)); j+=1; }
+        table[i]=v; i+=1;
     }
+    table
+}
+const CRC_TABLE: [u32;256] = crc_table();
+fn crc_update(mut crc: u32, data: &[u8]) -> u32 {
+    for &b in data { crc=(crc>>8)^CRC_TABLE[((crc^u32::from(b))&255) as usize]; }
     crc
 }
 fn rle(data: &[u8]) -> Vec<u8> {
@@ -147,20 +155,18 @@ fn u32_read(r: &mut impl Read) -> io::Result<u32> {
 fn u64_read(r: &mut impl Read) -> io::Result<u64> {
     let mut b = [0;8]; r.read_exact(&mut b)?; Ok(u64::from_le_bytes(b))
 }
-pub fn compress(mut input: impl Read, mut output: impl Write) -> io::Result<()> {
+/// Default content-defined chunking. Wire format remains v3.
+pub fn compress(input: impl Read, output: impl Write) -> io::Result<()> {
+    compress_with_mode(input,output,chunking::Mode::Adaptive)
+}
+pub fn compress_with_mode(input: impl Read, mut output: impl Write, mode:chunking::Mode) -> io::Result<()> {
     output.write_all(MAGIC)?;
-    let mut buf = vec![0;BLOCK];
+    let mut input=BufReader::with_capacity(BLOCK,input);
+    let mut buf=Vec::with_capacity(BLOCK);
     let (mut total, mut blocks, mut stream_crc) = (0u64,0u64,!0u32);
     loop {
-        let mut n = 0;
-        while n < BLOCK {
-            match input.read(&mut buf[n..]) {
-                Ok(0) => break,
-                Ok(k) => n += k,
-                Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
-                Err(e) => return Err(e),
-            }
-        }
+        chunking::read_chunk(&mut input,&mut buf,mode)?;
+        let n=buf.len();
         if n == 0 { break; }
         total = total.checked_add(n as u64).ok_or_else(|| invalid("size overflow"))?;
         blocks += 1;
@@ -248,14 +254,14 @@ mod tests {
         decompress(&a[..], &mut out, 3).unwrap(); assert_eq!(out,d);
     }
     #[test] fn removed_block() {
-        let a = packed(&vec![42; BLOCK*2]);
+        let mut a=Vec::new(); compress_with_mode(&vec![42;BLOCK*2][..],&mut a,chunking::Mode::Fixed).unwrap();
         let p = u32::from_le_bytes(a[13..17].try_into().unwrap()) as usize;
         let mut broken = a[..8].to_vec(); broken.extend(&a[21+p..]);
         assert!(decompress(&broken[..],io::sink(),u64::MAX).is_err());
     }
     #[test] fn reordered_blocks() {
         let mut data = vec![42;BLOCK]; data.extend(vec![13;BLOCK]);
-        let a = packed(&data);
+        let mut a=Vec::new(); compress_with_mode(&data[..],&mut a,chunking::Mode::Fixed).unwrap();
         let p = u32::from_le_bytes(a[13..17].try_into().unwrap()) as usize;
         let end = a.len()-21;
         let mut broken = a[..8].to_vec(); broken.extend(&a[21+p..end]); broken.extend(&a[8..21+p]); broken.extend(&a[end..]);
@@ -277,6 +283,20 @@ mod tests {
         let mut a = packed(&b"abcde".repeat(10000));
         assert!(a[8]>=10); a[..8].copy_from_slice(V2_MAGIC);
         assert!(decompress(&a[..],io::sink(),u64::MAX).is_err());
+    }
+    #[test] fn crc_table_matches_bitwise() {
+        let data:Vec<u8>=(0..65536).map(|i| (i*31) as u8).collect();
+        let mut slow=!0u32;
+        for &b in &data {slow^=u32::from(b);for _ in 0..8 {slow=(slow>>1)^(0xedb88320 & 0u32.wrapping_sub(slow&1));}}
+        assert_eq!(crc32(&data),!slow);
+        assert_eq!(crc_update(crc_update(!0,&data[..123]),&data[123..]),slow);
+    }
+    #[test] fn fixed_and_adaptive_roundtrip() {
+        let d=b"SedravArch adaptive test".repeat(10000);
+        for mode in [chunking::Mode::Adaptive,chunking::Mode::Fixed] {
+            let mut a=Vec::new(); compress_with_mode(&d[..],&mut a,mode).unwrap();
+            let mut out=Vec::new();decompress(&a[..],&mut out,d.len() as u64).unwrap(); assert_eq!(out,d);
+        }
     }
     #[test] fn invalid_match() { assert!(decode(2,&[128,0,0],3).is_err()); }
     #[test] fn invalid_rle() { assert!(decode(1,&[0,1],1).is_err()); }
