@@ -8,11 +8,13 @@ permissions:
   contents: write
 concurrency:
   group: sedravarch-windows-preview
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 25
+    env:
+      RUSTFLAGS: '-C target-feature=+crt-static'
     steps:
       - uses: actions/checkout@v4
       - name: Rust toolchain
@@ -59,6 +61,7 @@ jobs:
           SedravArch Desktop 0.8.1 alpha.2 — Windows x64 portable preview.
           Run SedravArch.exe (native Windows, no OpenGL). Optional SedravArch-OpenGL.exe uses the original graphical interface.
           Startup log: %LOCALAPPDATA%\SedravArch\startup.log.
+          Built with static C runtime; no separate Visual C++ Redistributable should be needed.
           Native window creation and message loop tested on Windows CI. File dialogs and real user workflows still require manual verification.
           Do not use for sole copies of important data. No encryption; CRC32 is not authentication.
           '@ | Set-Content -Encoding utf8 dist/portable/README.txt
