@@ -1,21 +1,25 @@
-//! SedravArch experimental block codec, format v1.
+//! SedravArch experimental block codec, format v2.
+mod entropy;
 use std::io::{self, Read, Write};
 
 pub const BLOCK: usize = 65_536;
-const MAGIC: &[u8; 8] = b"SDARCH\x01\x00";
+const MAGIC: &[u8; 8] = b"SDARCH\x02\x00";
+const LEGACY_MAGIC: &[u8; 8] = b"SDARCH\x01\x00";
 
 fn invalid(msg: &str) -> io::Error {
     io::Error::new(io::ErrorKind::InvalidData, msg)
 }
 fn crc32(data: &[u8]) -> u32 {
-    let mut crc = !0u32;
+    !crc_update(!0u32, data)
+}
+fn crc_update(mut crc: u32, data: &[u8]) -> u32 {
     for &b in data {
         crc ^= u32::from(b);
         for _ in 0..8 {
             crc = (crc >> 1) ^ (0xedb88320 & 0u32.wrapping_sub(crc & 1));
         }
     }
-    !crc
+    crc
 }
 fn rle(data: &[u8]) -> Vec<u8> {
     let mut out = Vec::new();
@@ -70,12 +74,18 @@ fn delta(data: &[u8]) -> Vec<u8> {
 fn encode(data: &[u8]) -> (u8, Vec<u8>) {
     let mut best = (0, data.to_vec());
     let diff = delta(data);
-    for (tag, payload) in [(1,rle(data)),(2,lz(data)),(3,rle(&diff)),(4,lz(&diff))] {
+    for (tag, payload) in [(0,data.to_vec()),(1,rle(data)),(2,lz(data)),(3,rle(&diff)),(4,lz(&diff))] {
+        let encoded = entropy::encode(&payload);
+        if encoded.len() < best.1.len() { best = (tag+5,encoded); }
         if payload.len() < best.1.len() { best = (tag,payload); }
     }
     best
 }
 fn decode(tag: u8, p: &[u8], n: usize) -> io::Result<Vec<u8>> {
+    if (5..=9).contains(&tag) {
+        let intermediate = entropy::decode(p, 2*n)?;
+        return decode(tag-5, &intermediate, n);
+    }
     let mut out = Vec::with_capacity(n);
     match tag {
         0 => out.extend_from_slice(p),
@@ -116,9 +126,13 @@ fn decode(tag: u8, p: &[u8], n: usize) -> io::Result<Vec<u8>> {
 fn u32_read(r: &mut impl Read) -> io::Result<u32> {
     let mut b = [0;4]; r.read_exact(&mut b)?; Ok(u32::from_le_bytes(b))
 }
+fn u64_read(r: &mut impl Read) -> io::Result<u64> {
+    let mut b = [0;8]; r.read_exact(&mut b)?; Ok(u64::from_le_bytes(b))
+}
 pub fn compress(mut input: impl Read, mut output: impl Write) -> io::Result<()> {
     output.write_all(MAGIC)?;
     let mut buf = vec![0;BLOCK];
+    let (mut total, mut blocks, mut stream_crc) = (0u64,0u64,!0u32);
     loop {
         let mut n = 0;
         while n < BLOCK {
@@ -130,6 +144,9 @@ pub fn compress(mut input: impl Read, mut output: impl Write) -> io::Result<()> 
             }
         }
         if n == 0 { break; }
+        total = total.checked_add(n as u64).ok_or_else(|| invalid("size overflow"))?;
+        blocks += 1;
+        stream_crc = crc_update(stream_crc,&buf[..n]);
         let (tag, payload) = encode(&buf[..n]);
         output.write_all(&[tag])?;
         output.write_all(&(n as u32).to_le_bytes())?;
@@ -138,15 +155,22 @@ pub fn compress(mut input: impl Read, mut output: impl Write) -> io::Result<()> 
         output.write_all(&payload)?;
     }
     output.write_all(&[255])?;
+    output.write_all(&total.to_le_bytes())?;
+    output.write_all(&blocks.to_le_bytes())?;
+    output.write_all(&(!stream_crc).to_le_bytes())?;
     output.flush()
 }
 pub fn decompress(mut input: impl Read, mut output: impl Write, max_output: u64) -> io::Result<()> {
     let mut magic = [0;8]; input.read_exact(&mut magic)?;
-    if &magic != MAGIC { return Err(invalid("bad archive header")); }
-    let mut total = 0u64;
+    let legacy = &magic == LEGACY_MAGIC;
+    if !legacy && &magic != MAGIC { return Err(invalid("bad archive header")); }
+    let (mut total, mut blocks, mut stream_crc) = (0u64,0u64,!0u32);
     loop {
         let mut tag = [0]; input.read_exact(&mut tag)?;
         if tag[0] == 255 {
+            if !legacy && (u64_read(&mut input)? != total || u64_read(&mut input)? != blocks || u32_read(&mut input)? != !stream_crc) {
+                return Err(invalid("stream integrity mismatch"));
+            }
             let mut extra = [0];
             if input.read(&mut extra)? != 0 { return Err(invalid("trailing data")); }
             return output.flush();
@@ -154,7 +178,7 @@ pub fn decompress(mut input: impl Read, mut output: impl Write, max_output: u64)
         let n = u32_read(&mut input)? as usize;
         let p = u32_read(&mut input)? as usize;
         let crc = u32_read(&mut input)?;
-        if tag[0] > 4 || n == 0 || n > BLOCK || p == 0 || p > n || (tag[0] == 0 && p != n) {
+        if tag[0] > (if legacy {4} else {9}) || n == 0 || n > BLOCK || p == 0 || p > n || (tag[0] == 0 && p != n) {
             return Err(invalid("invalid block header"));
         }
         total = total.checked_add(n as u64).ok_or_else(|| invalid("size overflow"))?;
@@ -162,6 +186,8 @@ pub fn decompress(mut input: impl Read, mut output: impl Write, max_output: u64)
         let mut payload = vec![0;p]; input.read_exact(&mut payload)?;
         let decoded = decode(tag[0],&payload,n)?;
         if crc32(&decoded) != crc { return Err(invalid("checksum mismatch")); }
+        blocks += 1;
+        stream_crc = crc_update(stream_crc,&decoded);
         output.write_all(&decoded)?;
     }
 }
@@ -195,6 +221,34 @@ mod tests {
     }
     #[test] fn limit() { assert!(decompress(&packed(b"abc")[..],io::sink(),2).is_err()); }
     #[test] fn trailing() { let mut a = packed(b""); a.push(0); assert!(decompress(&a[..],io::sink(),0).is_err()); }
+    #[test] fn legacy_archive() {
+        let mut a = LEGACY_MAGIC.to_vec();
+        let d = b"abc";
+        a.push(0); a.extend(3u32.to_le_bytes()); a.extend(3u32.to_le_bytes());
+        a.extend(crc32(d).to_le_bytes()); a.extend(d); a.push(255);
+        let mut out = Vec::new();
+        decompress(&a[..], &mut out, 3).unwrap(); assert_eq!(out,d);
+    }
+    #[test] fn removed_block() {
+        let a = packed(&vec![42; BLOCK*2]);
+        let p = u32::from_le_bytes(a[13..17].try_into().unwrap()) as usize;
+        let mut broken = a[..8].to_vec(); broken.extend(&a[21+p..]);
+        assert!(decompress(&broken[..],io::sink(),u64::MAX).is_err());
+    }
+    #[test] fn reordered_blocks() {
+        let mut data = vec![42;BLOCK]; data.extend(vec![13;BLOCK]);
+        let a = packed(&data);
+        let p = u32::from_le_bytes(a[13..17].try_into().unwrap()) as usize;
+        let end = a.len()-21;
+        let mut broken = a[..8].to_vec(); broken.extend(&a[21+p..end]); broken.extend(&a[8..21+p]); broken.extend(&a[end..]);
+        assert!(decompress(&broken[..],io::sink(),u64::MAX).is_err());
+    }
+    #[test] fn entropy_selected() {
+        let d = b"abracadabra".repeat(5000);
+        let (tag,p) = encode(&d);
+        assert!(tag >= 5);
+        assert_eq!(decode(tag,&p,d.len()).unwrap(),d);
+    }
     #[test] fn invalid_match() { assert!(decode(2,&[128,0,0],3).is_err()); }
     #[test] fn invalid_rle() { assert!(decode(1,&[0,1],1).is_err()); }
 }
