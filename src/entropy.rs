@@ -40,7 +40,7 @@ fn tree_write(nodes:&[Node], i:usize, bits:&mut Bits, path:&mut Vec<bool>, codes
         }
     }
 }
-pub(crate) fn encode(data:&[u8]) -> Vec<u8> {
+pub(crate) fn encode_below(data:&[u8], limit:usize) -> Option<Vec<u8>> {
     assert!(!data.is_empty());
     let mut freq=[0u32;256];
     for &b in data { freq[b as usize]+=1; }
@@ -59,9 +59,11 @@ pub(crate) fn encode(data:&[u8]) -> Vec<u8> {
     let mut bits=Bits::new();
     let mut codes=vec![Vec::new();256];
     tree_write(&nodes,root,&mut bits,&mut Vec::new(),&mut codes);
+    let bit_count = bits.n + freq.iter().zip(&codes).map(|(&f,c)| f as usize*c.len()).sum::<usize>();
+    if 4+(bit_count+7)/8 >= limit { return None; }
     for &b in data { for &bit in &codes[b as usize] { bits.put(bit); } }
     let mut out=(data.len() as u32).to_le_bytes().to_vec();
-    out.extend(bits.bytes); out
+    out.extend(bits.bytes); Some(out)
 }
 fn tree_read(r:&mut Reader<'_>, nodes:&mut Vec<Node>, seen:&mut [bool;256], depth:usize, budget:&mut usize) -> io::Result<usize> {
     if depth>255 || *budget==0 { return Err(invalid("Huffman tree limit")); }
@@ -99,6 +101,13 @@ pub(crate) fn decode(data:&[u8], max:usize) -> io::Result<Vec<u8>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn encode(data:&[u8]) -> Vec<u8> { encode_below(data,usize::MAX).unwrap() }
+    #[test] fn estimate() {
+        let d = b"abracadabra".repeat(1000);
+        let a = encode(&d);
+        assert!(encode_below(&d,a.len()).is_none());
+        assert_eq!(encode_below(&d,a.len()+1).unwrap(),a);
+    }
     #[test] fn roundtrip() {
         for d in [vec![8;65536], b"abcabcabc".repeat(500), (0..=255).collect()] {
             let a=encode(&d); assert_eq!(decode(&a,d.len()).unwrap(),d);
