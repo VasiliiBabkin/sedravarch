@@ -1,0 +1,61 @@
+name: Windows desktop preview
+on:
+  push:
+    branches: [dev/desktop-gui]
+    paths: ['.github/workflows/windows-preview.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: sedravarch-windows-preview
+  cancel-in-progress: false
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust toolchain
+        shell: pwsh
+        run: |
+          rustup default stable
+          rustc --version
+          cargo --version
+      - name: Check core
+        shell: pwsh
+        run: cargo test --release
+      - name: Desktop tests and build
+        shell: pwsh
+        run: |
+          cargo generate-lockfile --manifest-path desktop/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test --release --locked --manifest-path desktop/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo build --release --locked --manifest-path desktop/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo build --release --bin sedravarch
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Package portable preview
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path dist, dist/portable | Out-Null
+          Copy-Item desktop/target/release/sedravarch-desktop.exe dist/portable/SedravArch.exe
+          Copy-Item target/release/sedravarch.exe dist/portable/sedravarch-cli.exe
+          Copy-Item desktop/Cargo.lock dist/desktop-Cargo.lock
+          @'
+          SedravArch Desktop 0.8.0 alpha.1 — Windows x64 portable preview.
+          Run SedravArch.exe. No installer or administrator rights required.
+          Built and unit-tested on Windows CI; native windows and dialogs still require manual verification.
+          Do not use for sole copies of important data. No encryption; CRC32 is not authentication.
+          '@ | Set-Content -Encoding utf8 dist/portable/README.txt
+          Compress-Archive -Path dist/portable/* -DestinationPath dist/SedravArch-0.8.0-alpha.1-windows-x64.zip
+          $zip = Get-FileHash dist/SedravArch-0.8.0-alpha.1-windows-x64.zip -Algorithm SHA256
+          "$($zip.Hash.ToLowerInvariant())  $([System.IO.Path]::GetFileName($zip.Path))" | Set-Content -Encoding ascii dist/SHA256SUMS.txt
+      - name: Publish preview after passing tests
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v0.8.0-alpha.1 dist/SedravArch-0.8.0-alpha.1-windows-x64.zip dist/SHA256SUMS.txt dist/desktop-Cargo.lock --target "$env:GITHUB_SHA" --prerelease --title "SedravArch Desktop 0.8.0-alpha.1" --notes "Portable Windows x64 experimental preview. Core and headless UI tests passed in CI. Native window/dialog functionality and real-world use still need manual verification. Unsigned; do not rely on it for sole copies of important data."
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
