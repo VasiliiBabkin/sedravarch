@@ -1,0 +1,3 @@
+/target/
+*.sda
+__pycache__/
