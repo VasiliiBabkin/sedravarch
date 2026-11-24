@@ -200,7 +200,9 @@ fn collect(path:&Path,name:String,out:&mut Vec<Source>,index_bytes:&mut usize)->
         }
     }Ok(())
 }
-pub fn create(output:&Path,inputs:&[PathBuf])->io::Result<()>{
+pub fn create(output:&Path,inputs:&[PathBuf])->io::Result<()>{create_config(output,inputs,crate::Options::default())}
+pub fn create_config(output:&Path,inputs:&[PathBuf],opts:crate::Options)->io::Result<()>{
+    let opts=opts.validate()?;
     if inputs.is_empty(){return Err(fail("at least one input required"));}
     let parent=output.parent().filter(|p|!p.as_os_str().is_empty()).unwrap_or(Path::new(".")).canonicalize()?;
     let filename=output.file_name().ok_or_else(||fail("invalid output name"))?;
@@ -227,7 +229,7 @@ pub fn create(output:&Path,inputs:&[PathBuf])->io::Result<()>{
             if input.metadata()?.len()!=s.entry.size{return Err(fail("source size changed"));}
             s.entry.offset=file.stream_position()?;
             let mut limited=(&mut input).take(s.entry.size);
-            crate::compress(&mut limited,BufWriter::new(&mut file))?;
+            crate::compress_config(&mut limited,BufWriter::new(&mut file),opts)?;
             if limited.limit()!=0 || input.read(&mut [0])?!=0{return Err(fail("source size changed"));}
             s.entry.packed=file.stream_position()?.checked_sub(s.entry.offset).ok_or_else(||fail("extent overflow"))?;
         }
