@@ -1,11 +1,13 @@
-//! SedravArch experimental block codec, format v3.
+//! SedravArch experimental block codec, format v4.
+mod graph;
 mod entropy;
 mod dictionary;
 pub mod chunking;
 use std::io::{self, BufReader, Read, Write};
 
 pub const BLOCK: usize = 65_536;
-const MAGIC: &[u8; 8] = b"SDARCH\x03\x00";
+const MAGIC: &[u8; 8] = b"SDARCH\x04\x00";
+const V3_MAGIC: &[u8; 8] = b"SDARCH\x03\x00";
 const V2_MAGIC: &[u8; 8] = b"SDARCH\x02\x00";
 const LEGACY_MAGIC: &[u8; 8] = b"SDARCH\x01\x00";
 
@@ -155,12 +157,16 @@ fn u32_read(r: &mut impl Read) -> io::Result<u32> {
 fn u64_read(r: &mut impl Read) -> io::Result<u64> {
     let mut b = [0;8]; r.read_exact(&mut b)?; Ok(u64::from_le_bytes(b))
 }
-/// Default content-defined chunking. Wire format remains v3.
+/// Default content-defined chunking with bounded backward dependencies.
 pub fn compress(input: impl Read, output: impl Write) -> io::Result<()> {
     compress_with_mode(input,output,chunking::Mode::Adaptive)
 }
-pub fn compress_with_mode(input: impl Read, mut output: impl Write, mode:chunking::Mode) -> io::Result<()> {
-    output.write_all(MAGIC)?;
+pub fn compress_with_mode(input: impl Read, output: impl Write, mode:chunking::Mode) -> io::Result<()> {
+    compress_with_options(input,output,mode,true)
+}
+pub fn compress_with_options(input: impl Read, mut output: impl Write, mode:chunking::Mode, dependencies:bool) -> io::Result<()> {
+    output.write_all(if dependencies { MAGIC } else { V3_MAGIC })?;
+    let mut history=graph::History::new();
     let mut input=BufReader::with_capacity(BLOCK,input);
     let mut buf=Vec::with_capacity(BLOCK);
     let (mut total, mut blocks, mut stream_crc) = (0u64,0u64,!0u32);
@@ -171,11 +177,13 @@ pub fn compress_with_mode(input: impl Read, mut output: impl Write, mode:chunkin
         total = total.checked_add(n as u64).ok_or_else(|| invalid("size overflow"))?;
         blocks += 1;
         stream_crc = crc_update(stream_crc,&buf[..n]);
-        let (tag, payload) = encode(&buf[..n]);
+        let crc=crc32(&buf);
+        let (tag,payload,depth)=if dependencies { history.choose(&buf,crc) } else { let (tag,p)=encode(&buf); (tag,p,0) };
+        if dependencies { history.push(&buf,crc,depth); }
         output.write_all(&[tag])?;
         output.write_all(&(n as u32).to_le_bytes())?;
         output.write_all(&(payload.len() as u32).to_le_bytes())?;
-        output.write_all(&crc32(&buf[..n]).to_le_bytes())?;
+        output.write_all(&crc.to_le_bytes())?;
         output.write_all(&payload)?;
     }
     output.write_all(&[255])?;
@@ -187,7 +195,8 @@ pub fn compress_with_mode(input: impl Read, mut output: impl Write, mode:chunkin
 pub fn decompress(mut input: impl Read, mut output: impl Write, max_output: u64) -> io::Result<()> {
     let mut magic = [0;8]; input.read_exact(&mut magic)?;
     let legacy = &magic == LEGACY_MAGIC;
-    let max_tag = if legacy {4} else if &magic == V2_MAGIC {9} else if &magic == MAGIC {13} else { return Err(invalid("bad archive header")); };
+    let max_tag = if legacy {4} else if &magic == V2_MAGIC {9} else if &magic == V3_MAGIC {13} else if &magic == MAGIC {15} else { return Err(invalid("bad archive header")); };
+    let mut history=graph::History::new();
     let (mut total, mut blocks, mut stream_crc) = (0u64,0u64,!0u32);
     loop {
         let mut tag = [0]; input.read_exact(&mut tag)?;
@@ -208,8 +217,9 @@ pub fn decompress(mut input: impl Read, mut output: impl Write, max_output: u64)
         total = total.checked_add(n as u64).ok_or_else(|| invalid("size overflow"))?;
         if total > max_output { return Err(invalid("output limit exceeded")); }
         let mut payload = vec![0;p]; input.read_exact(&mut payload)?;
-        let decoded = decode(tag[0],&payload,n)?;
+        let (decoded,depth)=if tag[0]>=14 { history.restore(tag[0],&payload,n)? } else { (decode(tag[0],&payload,n)?,0) };
         if crc32(&decoded) != crc { return Err(invalid("checksum mismatch")); }
+        if max_tag>=15 { history.push(&decoded,crc,depth); }
         blocks += 1;
         stream_crc = crc_update(stream_crc,&decoded);
         output.write_all(&decoded)?;
@@ -297,6 +307,26 @@ mod tests {
             let mut a=Vec::new(); compress_with_mode(&d[..],&mut a,mode).unwrap();
             let mut out=Vec::new();decompress(&a[..],&mut out,d.len() as u64).unwrap(); assert_eq!(out,d);
         }
+    }
+    #[test] fn graph_roundtrip_and_v3_rejection() {
+        let mut x=98765u32;
+        let d:Vec<u8>=(0..BLOCK).map(|_|{x^=x<<13;x^=x>>17;x^=x<<5;x as u8}).collect();
+        let mut edited=d.clone(); edited[100..110].fill(1);
+        let mut data=d.clone();data.extend(&d);data.extend(&edited);
+        let mut a=Vec::new();compress_with_mode(&data[..],&mut a,chunking::Mode::Fixed).unwrap();
+        let p=u32::from_le_bytes(a[13..17].try_into().unwrap()) as usize;
+        assert_eq!(a[21+p],14);assert_eq!(a[21+p+15],15);
+        let mut restored=Vec::new();decompress(&a[..],&mut restored,data.len() as u64).unwrap();assert_eq!(restored,data);
+        let mut broken=a.clone();broken[21+p+13]=0;broken[21+p+14]=0;
+        assert!(decompress(&broken[..],io::sink(),u64::MAX).is_err());
+        a[..8].copy_from_slice(V3_MAGIC);
+        assert!(decompress(&a[..],io::sink(),u64::MAX).is_err());
+    }
+    #[test] fn independent_v3() {
+        let d=vec![12;BLOCK*2];let mut a=Vec::new();
+        compress_with_options(&d[..],&mut a,chunking::Mode::Fixed,false).unwrap();
+        assert_eq!(&a[..8],V3_MAGIC);
+        let mut out=Vec::new();decompress(&a[..],&mut out,d.len() as u64).unwrap();assert_eq!(out,d);
     }
     #[test] fn invalid_match() { assert!(decode(2,&[128,0,0],3).is_err()); }
     #[test] fn invalid_rle() { assert!(decode(1,&[0,1],1).is_err()); }
