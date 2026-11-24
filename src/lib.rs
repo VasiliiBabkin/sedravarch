@@ -1,9 +1,11 @@
-//! SedravArch experimental block codec, format v2.
+//! SedravArch experimental block codec, format v3.
 mod entropy;
+mod dictionary;
 use std::io::{self, Read, Write};
 
 pub const BLOCK: usize = 65_536;
-const MAGIC: &[u8; 8] = b"SDARCH\x02\x00";
+const MAGIC: &[u8; 8] = b"SDARCH\x03\x00";
+const V2_MAGIC: &[u8; 8] = b"SDARCH\x02\x00";
 const LEGACY_MAGIC: &[u8; 8] = b"SDARCH\x01\x00";
 
 fn invalid(msg: &str) -> io::Error {
@@ -80,12 +82,27 @@ fn encode(data: &[u8]) -> (u8, Vec<u8>) {
         }
         if payload.len() < best.1.len() { best = (tag,payload); }
     }
+    for (tag,payload) in [(10,dictionary::encode(data)),(11,dictionary::encode(&diff))] {
+        if let Some(encoded) = entropy::encode_below(&payload,best.1.len()) {
+            best = (tag+2,encoded);
+        }
+        if payload.len() < best.1.len() { best = (tag,payload); }
+    }
     best
 }
 fn decode(tag: u8, p: &[u8], n: usize) -> io::Result<Vec<u8>> {
     if (5..=9).contains(&tag) {
         let intermediate = entropy::decode(p, 2*n)?;
         return decode(tag-5, &intermediate, n);
+    }
+    if (12..=13).contains(&tag) {
+        let intermediate = entropy::decode(p,2*n)?;
+        return decode(tag-2,&intermediate,n);
+    }
+    if tag == 10 || tag == 11 {
+        let mut out = dictionary::decode(p,n)?;
+        if tag == 11 { let mut prev = 0u8; for b in &mut out { *b = b.wrapping_add(prev); prev = *b; } }
+        return Ok(out);
     }
     let mut out = Vec::with_capacity(n);
     match tag {
@@ -164,7 +181,7 @@ pub fn compress(mut input: impl Read, mut output: impl Write) -> io::Result<()> 
 pub fn decompress(mut input: impl Read, mut output: impl Write, max_output: u64) -> io::Result<()> {
     let mut magic = [0;8]; input.read_exact(&mut magic)?;
     let legacy = &magic == LEGACY_MAGIC;
-    if !legacy && &magic != MAGIC { return Err(invalid("bad archive header")); }
+    let max_tag = if legacy {4} else if &magic == V2_MAGIC {9} else if &magic == MAGIC {13} else { return Err(invalid("bad archive header")); };
     let (mut total, mut blocks, mut stream_crc) = (0u64,0u64,!0u32);
     loop {
         let mut tag = [0]; input.read_exact(&mut tag)?;
@@ -179,7 +196,7 @@ pub fn decompress(mut input: impl Read, mut output: impl Write, max_output: u64)
         let n = u32_read(&mut input)? as usize;
         let p = u32_read(&mut input)? as usize;
         let crc = u32_read(&mut input)?;
-        if tag[0] > (if legacy {4} else {9}) || n == 0 || n > BLOCK || p == 0 || p > n || (tag[0] == 0 && p != n) {
+        if tag[0] > max_tag || n == 0 || n > BLOCK || p == 0 || p > n || (tag[0] == 0 && p != n) {
             return Err(invalid("invalid block header"));
         }
         total = total.checked_add(n as u64).ok_or_else(|| invalid("size overflow"))?;
@@ -249,6 +266,17 @@ mod tests {
         let (tag,p) = encode(&d);
         assert!(tag >= 5);
         assert_eq!(decode(tag,&p,d.len()).unwrap(),d);
+    }
+    #[test] fn smart_selected() {
+        let d = b"abracadabra".repeat(5000);
+        let (tag,p) = encode(&d);
+        assert!(tag >= 10); assert!(p.len()<64);
+        assert_eq!(decode(tag,&p,d.len()).unwrap(),d);
+    }
+    #[test] fn v2_rejects_new_tags() {
+        let mut a = packed(&b"abcde".repeat(10000));
+        assert!(a[8]>=10); a[..8].copy_from_slice(V2_MAGIC);
+        assert!(decompress(&a[..],io::sink(),u64::MAX).is_err());
     }
     #[test] fn invalid_match() { assert!(decode(2,&[128,0,0],3).is_err()); }
     #[test] fn invalid_rle() { assert!(decode(1,&[0,1],1).is_err()); }
