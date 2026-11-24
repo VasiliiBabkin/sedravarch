@@ -4,6 +4,7 @@ use sedravarch::{archive::Entry,Options,Preset};
 use std::{path::PathBuf,sync::mpsc::{self,Receiver},time::Duration};
 
 mod ops;
+mod startup;
 use ops::{Task,ResultData,execute,size};
 fn open_dialog()->rfd::FileDialog{rfd::FileDialog::new().add_filter("SedravArch", &["sda"])}
 #[derive(Default,PartialEq)]
@@ -94,7 +95,7 @@ impl Desktop{
                 let e=filtered[i];
                 ui.horizontal(|ui|{
                     let label=if e.directory{format!("Каталог  {}",e.path)}else{e.path.clone()};
-                    if ui.add_enabled(!e.directory,egui::SelectableLabel::new(self.selected.as_deref()==Some(e.path.as_str()),label)).clicked(){self.selected=Some(e.path.clone());}
+                    if ui.add_enabled(!e.directory,egui::Button::selectable(self.selected.as_deref()==Some(e.path.as_str()),label)).clicked(){self.selected=Some(e.path.clone());}
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{ui.label(if e.directory{"—".into()}else{size(e.size)});});
                 });
             }
@@ -173,12 +174,21 @@ impl eframe::App for Desktop{
         });
     }
 }
-fn main()->eframe::Result<()>{
+fn run()->eframe::Result<()>{
     let options=eframe::NativeOptions{viewport:egui::ViewportBuilder::default().with_inner_size([960.,620.]).with_min_inner_size([720.,460.]),..Default::default()};
     eframe::run_native("SedravArch",options,Box::new(|cc|{
+        startup::log("egui app created");
         cc.egui_ctx.set_visuals(egui::Visuals::dark());
         Ok(Box::new(Desktop::default()))
     }))
+}
+fn main()->std::process::ExitCode{
+    startup::init("egui-opengl");
+    match std::panic::catch_unwind(run){
+        Ok(Ok(()))=>{startup::log("egui closed");std::process::ExitCode::SUCCESS},
+        Ok(Err(e))=>{startup::fatal(&format!("Не удалось запустить OpenGL-интерфейс: {e}\nЗапустите SedravArch.exe (нативный интерфейс)."));std::process::ExitCode::FAILURE},
+        Err(_)=>{startup::fatal("Ошибка запуска OpenGL-интерфейса. Используйте SedravArch.exe.");std::process::ExitCode::FAILURE}
+    }
 }
 #[cfg(test)]
 mod tests{
