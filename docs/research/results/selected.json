@@ -1,0 +1,1699 @@
+{
+  "baseline": "05a1c26662a15b10ce60cc56d568fb410051cfe0",
+  "environment": {
+    "uname": {
+      "system": "Linux",
+      "node": "16be73d4d5db",
+      "release": "6.18.57",
+      "version": "#1 SMP Tue Oct 20 21:56:04 UTC 2026",
+      "machine": "x86_64",
+      "processor": ""
+    },
+    "cpu_model": "AMD EPYC 7763 64-Core Processor",
+    "affinity_count": 3,
+    "cgroup": {
+      "cpu.max": "200000 100000",
+      "memory.max": "8589934592"
+    },
+    "python": "3.12.14",
+    "sqlite": "3.53.1"
+  },
+  "versions": {
+    "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)\nbinary: rustc\ncommit-hash: 0ef1bc386059596dada8fb65b50425aab2ea637a\ncommit-date: 2026-11-09\nhost: x86_64-unknown-linux-gnu\nrelease: 1.100.0\nLLVM version: 23.1.5",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+    "zstd": "*** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***",
+    "lz4": "*** lz4 v1.10.0 64-bit multithread, by Yann Collet ***",
+    "brotli": "brotli 1.1.0",
+    "gzip": "gzip 1.13\nCopyright (C) 2023 Free Software Foundation, Inc.\nCopyright (C) 1993 Jean-loup Gailly.\nThis is free software.  You may redistribute copies of it under the terms of\nthe GNU General Public License <https://www.gnu.org/licenses/gpl.html>.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by Jean-loup Gailly.",
+    "7zip": "7-Zip (z) 25.01 (x64) : Copyright (c) 1999-2025 Igor Pavlov : 2025-08-03",
+    "xz": "xz (XZ Utils) 5.8.1\nliblzma 5.8.1"
+  },
+  "binaries_sha256": {
+    "sadm": "d8522b18f873160d5d4d244ba4e68272bca4cb046cf0224d063d68443389d31d",
+    "sedravarch": "f14369c39d44fb19b84f3f862d1882e5dbe1fedb5409cba91b964dbd5dd907c4"
+  },
+  "sources": {
+    "canterbury": "c380ef9dc1dc62691757fdfeebdc2f85710e1e46",
+    "silesia": "85596ee9d0a95526603086abadf126c08e07ef8a"
+  },
+  "inputs": {
+    "canterbury/alice29.txt": {
+      "bytes": 152089,
+      "sha256": "7467306ee0feed4971260f3c87421154a05be571d944e9cb021a5713700c38f0"
+    },
+    "canterbury/asyoulik.txt": {
+      "bytes": 125179,
+      "sha256": "eaa3526fe53859f34ecdf255712f9ecf0b2c903451d4755b2edaa2e2599cb0fc"
+    },
+    "canterbury/cp.html": {
+      "bytes": 24603,
+      "sha256": "e0cd21cef5b6c4069461e949be100080c3ce887de6f1dd8626c480528efaaf61"
+    },
+    "canterbury/fields.c": {
+      "bytes": 11150,
+      "sha256": "85d73e354cc50cec76cb5a50537cf8dc035f8cbb8480f9e1cbe2f7d6c23393c7"
+    },
+    "canterbury/grammar.lsp": {
+      "bytes": 3721,
+      "sha256": "1b0805dfc0ae706b35aac2bb4e15f02485efd24dda5dbd29de7b2f84d1a88c15"
+    },
+    "canterbury/kennedy.xls": {
+      "bytes": 1029744,
+      "sha256": "9af47239ca29dfe20e633f80bbbb9a4cc9783d0803d7b2b5626f42e4c3790420"
+    },
+    "canterbury/lcet10.txt": {
+      "bytes": 426754,
+      "sha256": "5314ba1dbb03f471df88bec6cd120a938ef60d0fd3511c5c1dce61bf7463245f"
+    },
+    "canterbury/plrabn12.txt": {
+      "bytes": 481861,
+      "sha256": "07e2e0b461af78c7c647cb53dab39de560198e16f799b4516eccf0fbd69f764c"
+    },
+    "canterbury/ptt5": {
+      "bytes": 513216,
+      "sha256": "0ec3a75089bb52342813496b17e51377bc9eba3cb519a444d67025354841d650"
+    },
+    "canterbury/sum": {
+      "bytes": 38240,
+      "sha256": "ee5733cd76ecc2f9d8ff156adc3c02a7a851051dcf43a2d56ff4ee4ff606bdb3"
+    },
+    "canterbury/xargs.1": {
+      "bytes": 4227,
+      "sha256": "c58aeb5d2d1e12751d47e7412b45784405fc30a5671b03d480fa05776e183619"
+    },
+    "silesia/dickens": {
+      "bytes": 10192446,
+      "sha256": "b24c37886142e11d0ee687db6ab06f936207aa7f2ea1fd1d9a36763c7a507e6a"
+    },
+    "silesia/mozilla": {
+      "bytes": 51220480,
+      "sha256": "657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b"
+    },
+    "silesia/mr": {
+      "bytes": 9970564,
+      "sha256": "68637ed52e3e4860174ed2dc0840ac77d5f1a60abbcb13770d5754e3774d53e6"
+    },
+    "silesia/nci": {
+      "bytes": 33553445,
+      "sha256": "fc63a31770947b8c2062d3b19ca94c00485a232bb91b502021948fee983e1635"
+    },
+    "silesia/ooffice": {
+      "bytes": 6152192,
+      "sha256": "e7ee013880d34dd5208283d0d3d91b07f442e067454276095ded14f322a656eb"
+    },
+    "silesia/osdb": {
+      "bytes": 10085684,
+      "sha256": "60f027179302ca3ad87c58ac90b6be72ec23588aaa7a3b7fe8ecc0f11def3fa3"
+    },
+    "silesia/reymont": {
+      "bytes": 6627202,
+      "sha256": "0eac0114a3dfe6e2ee1f345a0f79d653cb26c3bc9f0ed79238af4933422b7578"
+    },
+    "silesia/samba": {
+      "bytes": 21606400,
+      "sha256": "93ba07bc44d8267789c1d911992f40b089ffa2140b4a160fac11ccae9a40e7b2"
+    },
+    "silesia/sao": {
+      "bytes": 7251944,
+      "sha256": "c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc"
+    },
+    "silesia/webster": {
+      "bytes": 41458703,
+      "sha256": "6a68f69b26daf09f9dd84f7470368553194a0b294fcfa80f1604efb11143a383"
+    },
+    "silesia/x-ray": {
+      "bytes": 8474240,
+      "sha256": "7de9fce1405dc44ae5e6813ed21cd5751e761bd4265655a005d39b9685d1c9ad"
+    },
+    "silesia/xml": {
+      "bytes": 5345280,
+      "sha256": "0e82e54e695c1938e4193448022543845b33020c8be6bf3bf3ead2224903e08c"
+    },
+    "local/git-elf": {
+      "bytes": 4082768,
+      "sha256": "356db14e102d68a1a37d8a1ac577dfd678d45d46e92f468bef8b7154e7bfdc60"
+    },
+    "local/git-xz": {
+      "bytes": 1631800,
+      "sha256": "ff690bceb2cc70126f9887b709c2c4b3074744b4bcce7ecfb47182c7298f02a5"
+    },
+    "generated/random.bin": {
+      "bytes": 1048576,
+      "sha256": "315550ecd3880691bf93db4935c927d5d56caffd82c1e56800724b2964de3241"
+    },
+    "generated/numeric.bin": {
+      "bytes": 262144,
+      "sha256": "68b596ba622626255710e54cfe15bcfb0e00b2ad9eb82785e5a0de3f39c9290f"
+    },
+    "generated/records.sqlite": {
+      "bytes": 401408,
+      "sha256": "34b19cd47953a765dcf036a9bc8062ecbf6f88e603e0b18a2ea7277f39d7539e"
+    },
+    "generated/source.tar": {
+      "bytes": 133120,
+      "sha256": "c8aff816f200f1bf5639fb784ac4e000d02ba71e80b8cfdb937c1b101d16dccc"
+    },
+    "family/v0": {
+      "bytes": 262144,
+      "sha256": "5758c38c36aa039267d685109d05224993af4794767d355fd12a31294a8fd9bc"
+    },
+    "family/v1": {
+      "bytes": 262144,
+      "sha256": "5758c38c36aa039267d685109d05224993af4794767d355fd12a31294a8fd9bc"
+    },
+    "family/v2": {
+      "bytes": 262167,
+      "sha256": "cee913e3055d088a14df62bc088ed6d4e725b74b1ed474f020a8c024a7095615"
+    },
+    "family/tar": {
+      "bytes": 798720,
+      "sha256": "a5142f75de71e45a2b1a2f205bd0236cfd465825fafcc85110f5ff57d514689f"
+    }
+  },
+  "single_file": [
+    {
+      "dataset": "canterbury/alice29.txt",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 88831,
+      "archive_sha256": "4e7c253f9b36082b8b1046f5758d75cf2687b32ffb9c37db177eb328f46b509b",
+      "encode": {
+        "wall_s": 0.014680306,
+        "user_s": 0.01453,
+        "system_s": 0.0,
+        "peak_rss_kib": 1684
+      },
+      "decode": {
+        "wall_s": 0.003336425,
+        "user_s": 0.003265,
+        "system_s": 0.0,
+        "peak_rss_kib": 1444
+      }
+    },
+    {
+      "dataset": "canterbury/alice29.txt",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 88831,
+      "archive_sha256": "4e7c253f9b36082b8b1046f5758d75cf2687b32ffb9c37db177eb328f46b509b",
+      "encode": {
+        "wall_s": 0.03054698,
+        "user_s": 0.025607,
+        "system_s": 0.004868,
+        "peak_rss_kib": 1584
+      },
+      "decode": {
+        "wall_s": 0.012858785,
+        "user_s": 0.005787,
+        "system_s": 0.003187,
+        "peak_rss_kib": 1344
+      }
+    },
+    {
+      "dataset": "canterbury/asyoulik.txt",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 76841,
+      "archive_sha256": "a0bc2ed4b99678fe34a4f2bef55bdcf03b0340b8a1c8d308e4d00064f955004f",
+      "encode": {
+        "wall_s": 0.014935225,
+        "user_s": 0.011161,
+        "system_s": 0.003692,
+        "peak_rss_kib": 1580
+      },
+      "decode": {
+        "wall_s": 0.002985526,
+        "user_s": 0.002886,
+        "system_s": 0.0,
+        "peak_rss_kib": 1352
+      }
+    },
+    {
+      "dataset": "canterbury/asyoulik.txt",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 76841,
+      "archive_sha256": "a0bc2ed4b99678fe34a4f2bef55bdcf03b0340b8a1c8d308e4d00064f955004f",
+      "encode": {
+        "wall_s": 0.012450409,
+        "user_s": 0.012384,
+        "system_s": 0.0,
+        "peak_rss_kib": 1560
+      },
+      "decode": {
+        "wall_s": 0.00327537,
+        "user_s": 0.003203,
+        "system_s": 0.0,
+        "peak_rss_kib": 1448
+      }
+    },
+    {
+      "dataset": "canterbury/cp.html",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 16631,
+      "archive_sha256": "79e44b8141403f391b22fa95f82840ae6f989da67cee69a00f8366aa83541428",
+      "encode": {
+        "wall_s": 0.003465788,
+        "user_s": 0.003397,
+        "system_s": 0.0,
+        "peak_rss_kib": 1220
+      },
+      "decode": {
+        "wall_s": 0.001453951,
+        "user_s": 0.001385,
+        "system_s": 0.0,
+        "peak_rss_kib": 1300
+      }
+    },
+    {
+      "dataset": "canterbury/cp.html",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 16631,
+      "archive_sha256": "79e44b8141403f391b22fa95f82840ae6f989da67cee69a00f8366aa83541428",
+      "encode": {
+        "wall_s": 0.003529508,
+        "user_s": 0.00347,
+        "system_s": 0.0,
+        "peak_rss_kib": 1216
+      },
+      "decode": {
+        "wall_s": 0.001511438,
+        "user_s": 0.00145,
+        "system_s": 0.0,
+        "peak_rss_kib": 1212
+      }
+    },
+    {
+      "dataset": "canterbury/fields.c",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 7298,
+      "archive_sha256": "5a0ae9b4cb40e4cf9bcaa5d9f587a714210fe04f4c64f97982f77ccbbd57e93b",
+      "encode": {
+        "wall_s": 0.0024815,
+        "user_s": 0.002417,
+        "system_s": 0.0,
+        "peak_rss_kib": 1324
+      },
+      "decode": {
+        "wall_s": 0.001434303,
+        "user_s": 0.001162,
+        "system_s": 0.0,
+        "peak_rss_kib": 1216
+      }
+    },
+    {
+      "dataset": "canterbury/fields.c",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 7298,
+      "archive_sha256": "5a0ae9b4cb40e4cf9bcaa5d9f587a714210fe04f4c64f97982f77ccbbd57e93b",
+      "encode": {
+        "wall_s": 0.002594551,
+        "user_s": 0.0,
+        "system_s": 0.002367,
+        "peak_rss_kib": 1324
+      },
+      "decode": {
+        "wall_s": 0.001175287,
+        "user_s": 0.001111,
+        "system_s": 0.0,
+        "peak_rss_kib": 1320
+      }
+    },
+    {
+      "dataset": "canterbury/grammar.lsp",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 2429,
+      "archive_sha256": "b3f05a8525960e7044349499c4e5a9ff0afe97e8aecbe053594617304c3e598a",
+      "encode": {
+        "wall_s": 0.001412563,
+        "user_s": 0.001348,
+        "system_s": 0.0,
+        "peak_rss_kib": 1220
+      },
+      "decode": {
+        "wall_s": 0.001289953,
+        "user_s": 0.001029,
+        "system_s": 0.0,
+        "peak_rss_kib": 1300
+      }
+    },
+    {
+      "dataset": "canterbury/grammar.lsp",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 2429,
+      "archive_sha256": "b3f05a8525960e7044349499c4e5a9ff0afe97e8aecbe053594617304c3e598a",
+      "encode": {
+        "wall_s": 0.00151224,
+        "user_s": 0.0014,
+        "system_s": 0.0,
+        "peak_rss_kib": 1312
+      },
+      "decode": {
+        "wall_s": 0.001083204,
+        "user_s": 0.001015,
+        "system_s": 0.0,
+        "peak_rss_kib": 1204
+      }
+    },
+    {
+      "dataset": "canterbury/kennedy.xls",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 471383,
+      "archive_sha256": "8742546fd63c535fcd59d74d6241088187f86364868b59237589fac73213e4ea",
+      "encode": {
+        "wall_s": 0.082864022,
+        "user_s": 0.082732,
+        "system_s": 0.0,
+        "peak_rss_kib": 3384
+      },
+      "decode": {
+        "wall_s": 0.013765971,
+        "user_s": 0.013668,
+        "system_s": 0.0,
+        "peak_rss_kib": 1688
+      }
+    },
+    {
+      "dataset": "canterbury/kennedy.xls",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 471383,
+      "archive_sha256": "8742546fd63c535fcd59d74d6241088187f86364868b59237589fac73213e4ea",
+      "encode": {
+        "wall_s": 0.077836202,
+        "user_s": 0.077326,
+        "system_s": 0.0,
+        "peak_rss_kib": 3484
+      },
+      "decode": {
+        "wall_s": 0.057549344,
+        "user_s": 0.045097,
+        "system_s": 0.012264,
+        "peak_rss_kib": 1724
+      }
+    },
+    {
+      "dataset": "canterbury/lcet10.txt",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 253231,
+      "archive_sha256": "4f695838d2c683351572a224278053a06d2f5088ca60edcbd5571eb7aa277d90",
+      "encode": {
+        "wall_s": 0.04298735,
+        "user_s": 0.038743,
+        "system_s": 0.004136,
+        "peak_rss_kib": 2360
+      },
+      "decode": {
+        "wall_s": 0.007137373,
+        "user_s": 0.007024,
+        "system_s": 0.0,
+        "peak_rss_kib": 1460
+      }
+    },
+    {
+      "dataset": "canterbury/lcet10.txt",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 253231,
+      "archive_sha256": "4f695838d2c683351572a224278053a06d2f5088ca60edcbd5571eb7aa277d90",
+      "encode": {
+        "wall_s": 0.03980079,
+        "user_s": 0.03947,
+        "system_s": 0.0,
+        "peak_rss_kib": 2348
+      },
+      "decode": {
+        "wall_s": 0.007025493,
+        "user_s": 0.003386,
+        "system_s": 0.003386,
+        "peak_rss_kib": 1480
+      }
+    },
+    {
+      "dataset": "canterbury/plrabn12.txt",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 278999,
+      "archive_sha256": "7214926f70d394dea8d76129f27bb957d896f8a7a18ec60b3996a0c908c75e43",
+      "encode": {
+        "wall_s": 0.042627514,
+        "user_s": 0.042336,
+        "system_s": 0.0,
+        "peak_rss_kib": 2344
+      },
+      "decode": {
+        "wall_s": 0.008593122,
+        "user_s": 0.008491,
+        "system_s": 0.0,
+        "peak_rss_kib": 1556
+      }
+    },
+    {
+      "dataset": "canterbury/plrabn12.txt",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 278999,
+      "archive_sha256": "7214926f70d394dea8d76129f27bb957d896f8a7a18ec60b3996a0c908c75e43",
+      "encode": {
+        "wall_s": 0.07171764,
+        "user_s": 0.06455,
+        "system_s": 0.003203,
+        "peak_rss_kib": 2452
+      },
+      "decode": {
+        "wall_s": 0.00851161,
+        "user_s": 0.005516,
+        "system_s": 0.002907,
+        "peak_rss_kib": 1612
+      }
+    },
+    {
+      "dataset": "canterbury/ptt5",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 78538,
+      "archive_sha256": "cd168dd4db90e90fd2b8d9b07bfc2f6eae203c6c6ecbf9ac76682db990004e20",
+      "encode": {
+        "wall_s": 0.037909305,
+        "user_s": 0.037822,
+        "system_s": 0.0,
+        "peak_rss_kib": 1996
+      },
+      "decode": {
+        "wall_s": 0.007110331,
+        "user_s": 0.007021,
+        "system_s": 0.0,
+        "peak_rss_kib": 1452
+      }
+    },
+    {
+      "dataset": "canterbury/ptt5",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 78538,
+      "archive_sha256": "cd168dd4db90e90fd2b8d9b07bfc2f6eae203c6c6ecbf9ac76682db990004e20",
+      "encode": {
+        "wall_s": 0.048437429,
+        "user_s": 0.047085,
+        "system_s": 0.001255,
+        "peak_rss_kib": 2048
+      },
+      "decode": {
+        "wall_s": 0.009076603,
+        "user_s": 0.008964,
+        "system_s": 0.0,
+        "peak_rss_kib": 1432
+      }
+    },
+    {
+      "dataset": "canterbury/sum",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 26159,
+      "archive_sha256": "d5b4b35b65f1c42d5a18816c4b3edcdc53afad345d5c1c0f26d07add3abfc1f3",
+      "encode": {
+        "wall_s": 0.004776945,
+        "user_s": 0.004656,
+        "system_s": 0.0,
+        "peak_rss_kib": 1320
+      },
+      "decode": {
+        "wall_s": 0.001669044,
+        "user_s": 0.001586,
+        "system_s": 0.0,
+        "peak_rss_kib": 1308
+      }
+    },
+    {
+      "dataset": "canterbury/sum",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 26159,
+      "archive_sha256": "d5b4b35b65f1c42d5a18816c4b3edcdc53afad345d5c1c0f26d07add3abfc1f3",
+      "encode": {
+        "wall_s": 0.004730523,
+        "user_s": 0.004666,
+        "system_s": 0.0,
+        "peak_rss_kib": 1228
+      },
+      "decode": {
+        "wall_s": 0.001700934,
+        "user_s": 0.001586,
+        "system_s": 0.0,
+        "peak_rss_kib": 1308
+      }
+    },
+    {
+      "dataset": "canterbury/xargs.1",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 2857,
+      "archive_sha256": "cb48978829c7fb083c20763b36fe3fa79dbab33b731c1bdf73f7c6531e03df01",
+      "encode": {
+        "wall_s": 0.001684913,
+        "user_s": 0.001607,
+        "system_s": 0.0,
+        "peak_rss_kib": 1280
+      },
+      "decode": {
+        "wall_s": 0.001352129,
+        "user_s": 0.001133,
+        "system_s": 0.0,
+        "peak_rss_kib": 1212
+      }
+    },
+    {
+      "dataset": "canterbury/xargs.1",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 2857,
+      "archive_sha256": "cb48978829c7fb083c20763b36fe3fa79dbab33b731c1bdf73f7c6531e03df01",
+      "encode": {
+        "wall_s": 0.001797661,
+        "user_s": 0.001564,
+        "system_s": 0.0,
+        "peak_rss_kib": 1328
+      },
+      "decode": {
+        "wall_s": 0.001142776,
+        "user_s": 0.001066,
+        "system_s": 0.0,
+        "peak_rss_kib": 1216
+      }
+    },
+    {
+      "dataset": "silesia/dickens",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 5874786,
+      "archive_sha256": "00862d243bed764e14c40194a33ed1ec2bd59ab366363ae1ce06a47cc143f04c",
+      "encode": {
+        "wall_s": 0.904829464,
+        "user_s": 0.883623,
+        "system_s": 0.020208,
+        "peak_rss_kib": 24852
+      },
+      "decode": {
+        "wall_s": 0.138996382,
+        "user_s": 0.126597,
+        "system_s": 0.011987,
+        "peak_rss_kib": 6988
+      }
+    },
+    {
+      "dataset": "silesia/dickens",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 5874786,
+      "archive_sha256": "00862d243bed764e14c40194a33ed1ec2bd59ab366363ae1ce06a47cc143f04c",
+      "encode": {
+        "wall_s": 0.969571312,
+        "user_s": 0.932643,
+        "system_s": 0.028098,
+        "peak_rss_kib": 24780
+      },
+      "decode": {
+        "wall_s": 0.140030515,
+        "user_s": 0.127907,
+        "system_s": 0.011912,
+        "peak_rss_kib": 6944
+      }
+    },
+    {
+      "dataset": "silesia/mozilla",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 35848188,
+      "archive_sha256": "8d50a77781e4a41d3bd2745118164e398ac1efbc556200a366415da8d83e8101",
+      "encode": {
+        "wall_s": 5.024895906,
+        "user_s": 4.548381,
+        "system_s": 0.470132,
+        "peak_rss_kib": 135092
+      },
+      "decode": {
+        "wall_s": 0.73779996,
+        "user_s": 0.684966,
+        "system_s": 0.052688,
+        "peak_rss_kib": 36388
+      }
+    },
+    {
+      "dataset": "silesia/mozilla",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 35848188,
+      "archive_sha256": "8d50a77781e4a41d3bd2745118164e398ac1efbc556200a366415da8d83e8101",
+      "encode": {
+        "wall_s": 4.613030818,
+        "user_s": 4.446131,
+        "system_s": 0.156228,
+        "peak_rss_kib": 135104
+      },
+      "decode": {
+        "wall_s": 0.829755811,
+        "user_s": 0.709761,
+        "system_s": 0.116813,
+        "peak_rss_kib": 36368
+      }
+    },
+    {
+      "dataset": "silesia/mr",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 3804808,
+      "archive_sha256": "280ddbe15e7dca14614a1b97d3cd478fb6aa6c70c3cda44b4197f253f8830388",
+      "encode": {
+        "wall_s": 0.886998129,
+        "user_s": 0.877814,
+        "system_s": 0.008075,
+        "peak_rss_kib": 20792
+      },
+      "decode": {
+        "wall_s": 0.13854044,
+        "user_s": 0.129605,
+        "system_s": 0.008349,
+        "peak_rss_kib": 5048
+      }
+    },
+    {
+      "dataset": "silesia/mr",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 3804808,
+      "archive_sha256": "280ddbe15e7dca14614a1b97d3cd478fb6aa6c70c3cda44b4197f253f8830388",
+      "encode": {
+        "wall_s": 0.941194458,
+        "user_s": 0.912648,
+        "system_s": 0.023859,
+        "peak_rss_kib": 20784
+      },
+      "decode": {
+        "wall_s": 0.137875567,
+        "user_s": 0.129393,
+        "system_s": 0.008184,
+        "peak_rss_kib": 5020
+      }
+    },
+    {
+      "dataset": "silesia/nci",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 10511550,
+      "archive_sha256": "d889029c379c9bf4eadb22a11c163f6302c08a8126d8fe0b3f89641b61a5de63",
+      "encode": {
+        "wall_s": 3.129159397,
+        "user_s": 3.024151,
+        "system_s": 0.097948,
+        "peak_rss_kib": 63872
+      },
+      "decode": {
+        "wall_s": 0.475729006,
+        "user_s": 0.40952,
+        "system_s": 0.065572,
+        "peak_rss_kib": 11580
+      }
+    },
+    {
+      "dataset": "silesia/nci",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 10511550,
+      "archive_sha256": "d889029c379c9bf4eadb22a11c163f6302c08a8126d8fe0b3f89641b61a5de63",
+      "encode": {
+        "wall_s": 3.132535053,
+        "user_s": 3.027756,
+        "system_s": 0.099031,
+        "peak_rss_kib": 63688
+      },
+      "decode": {
+        "wall_s": 0.403195214,
+        "user_s": 0.379666,
+        "system_s": 0.023353,
+        "peak_rss_kib": 11572
+      }
+    },
+    {
+      "dataset": "silesia/ooffice",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 4929727,
+      "archive_sha256": "98e7479e777a8ed1fdd86aa5c88c380858582326c67aa7ea5b1303aebaf03245",
+      "encode": {
+        "wall_s": 0.495971422,
+        "user_s": 0.483221,
+        "system_s": 0.012417,
+        "peak_rss_kib": 18716
+      },
+      "decode": {
+        "wall_s": 0.090712062,
+        "user_s": 0.086701,
+        "system_s": 0.003848,
+        "peak_rss_kib": 6092
+      }
+    },
+    {
+      "dataset": "silesia/ooffice",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 4929727,
+      "archive_sha256": "98e7479e777a8ed1fdd86aa5c88c380858582326c67aa7ea5b1303aebaf03245",
+      "encode": {
+        "wall_s": 0.552533272,
+        "user_s": 0.528778,
+        "system_s": 0.020748,
+        "peak_rss_kib": 18712
+      },
+      "decode": {
+        "wall_s": 0.092314864,
+        "user_s": 0.084129,
+        "system_s": 0.007981,
+        "peak_rss_kib": 6088
+      }
+    },
+    {
+      "dataset": "silesia/osdb",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 8796995,
+      "archive_sha256": "135083a3b7cfef38b57156cab776a52ff4abb293ebce617e01a7a2a0b7c2e695",
+      "encode": {
+        "wall_s": 0.826926362,
+        "user_s": 0.806651,
+        "system_s": 0.019509,
+        "peak_rss_kib": 32448
+      },
+      "decode": {
+        "wall_s": 0.157581056,
+        "user_s": 0.1496,
+        "system_s": 0.007849,
+        "peak_rss_kib": 9904
+      }
+    },
+    {
+      "dataset": "silesia/osdb",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 8796995,
+      "archive_sha256": "135083a3b7cfef38b57156cab776a52ff4abb293ebce617e01a7a2a0b7c2e695",
+      "encode": {
+        "wall_s": 0.906886203,
+        "user_s": 0.87495,
+        "system_s": 0.027828,
+        "peak_rss_kib": 32440
+      },
+      "decode": {
+        "wall_s": 0.15718396,
+        "user_s": 0.140259,
+        "system_s": 0.016216,
+        "peak_rss_kib": 9928
+      }
+    },
+    {
+      "dataset": "silesia/reymont",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 4051579,
+      "archive_sha256": "349add725293477ad72d54efd13c01c08f4478c24393ac15bb7cfeecdc8991fb",
+      "encode": {
+        "wall_s": 0.639062955,
+        "user_s": 0.615334,
+        "system_s": 0.023015,
+        "peak_rss_kib": 17564
+      },
+      "decode": {
+        "wall_s": 0.106501903,
+        "user_s": 0.093721,
+        "system_s": 0.011188,
+        "peak_rss_kib": 5180
+      }
+    },
+    {
+      "dataset": "silesia/reymont",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 4051579,
+      "archive_sha256": "349add725293477ad72d54efd13c01c08f4478c24393ac15bb7cfeecdc8991fb",
+      "encode": {
+        "wall_s": 0.733196023,
+        "user_s": 0.705801,
+        "system_s": 0.023403,
+        "peak_rss_kib": 17336
+      },
+      "decode": {
+        "wall_s": 0.110176756,
+        "user_s": 0.088164,
+        "system_s": 0.02176,
+        "peak_rss_kib": 5168
+      }
+    },
+    {
+      "dataset": "silesia/samba",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 14331489,
+      "archive_sha256": "81f0f537b8558125dc58a81a89327f5d880b0e416082937f1a31f5b98fbce8c4",
+      "encode": {
+        "wall_s": 2.197629017,
+        "user_s": 2.133174,
+        "system_s": 0.061143,
+        "peak_rss_kib": 56736
+      },
+      "decode": {
+        "wall_s": 0.298322842,
+        "user_s": 0.270289,
+        "system_s": 0.027812,
+        "peak_rss_kib": 15272
+      }
+    },
+    {
+      "dataset": "silesia/samba",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 14331489,
+      "archive_sha256": "81f0f537b8558125dc58a81a89327f5d880b0e416082937f1a31f5b98fbce8c4",
+      "encode": {
+        "wall_s": 2.130043498,
+        "user_s": 2.071872,
+        "system_s": 0.052934,
+        "peak_rss_kib": 56760
+      },
+      "decode": {
+        "wall_s": 0.290531437,
+        "user_s": 0.269876,
+        "system_s": 0.020319,
+        "peak_rss_kib": 15288
+      }
+    },
+    {
+      "dataset": "silesia/sao",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 7032228,
+      "archive_sha256": "1cdb7e85d0323ddc18f25709a3e165f1ab9d3c3fc6d2a8e720ad63f3774783a6",
+      "encode": {
+        "wall_s": 0.576093562,
+        "user_s": 0.555866,
+        "system_s": 0.019935,
+        "peak_rss_kib": 23884
+      },
+      "decode": {
+        "wall_s": 0.111191587,
+        "user_s": 0.106992,
+        "system_s": 0.003991,
+        "peak_rss_kib": 8096
+      }
+    },
+    {
+      "dataset": "silesia/sao",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 7032228,
+      "archive_sha256": "1cdb7e85d0323ddc18f25709a3e165f1ab9d3c3fc6d2a8e720ad63f3774783a6",
+      "encode": {
+        "wall_s": 0.64399336,
+        "user_s": 0.608031,
+        "system_s": 0.031949,
+        "peak_rss_kib": 23884
+      },
+      "decode": {
+        "wall_s": 0.108270541,
+        "user_s": 0.100096,
+        "system_s": 0.008027,
+        "peak_rss_kib": 8088
+      }
+    },
+    {
+      "dataset": "silesia/webster",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 26261944,
+      "archive_sha256": "86db7a027852795a6af5263819fe6476113b13bceb1a26ca4112049dbba4ee06",
+      "encode": {
+        "wall_s": 4.274700415,
+        "user_s": 3.940205,
+        "system_s": 0.324868,
+        "peak_rss_kib": 104984
+      },
+      "decode": {
+        "wall_s": 0.665843863,
+        "user_s": 0.57729,
+        "system_s": 0.084272,
+        "peak_rss_kib": 27032
+      }
+    },
+    {
+      "dataset": "silesia/webster",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 26261944,
+      "archive_sha256": "86db7a027852795a6af5263819fe6476113b13bceb1a26ca4112049dbba4ee06",
+      "encode": {
+        "wall_s": 4.98469348,
+        "user_s": 4.063322,
+        "system_s": 0.148933,
+        "peak_rss_kib": 104772
+      },
+      "decode": {
+        "wall_s": 0.602186002,
+        "user_s": 0.554466,
+        "system_s": 0.044386,
+        "peak_rss_kib": 27048
+      }
+    },
+    {
+      "dataset": "silesia/x-ray",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 5350875,
+      "archive_sha256": "d52e19c3789b9f486fa49196381041611527d2ee6bbbdc55a4a7c0f7a8120a1c",
+      "encode": {
+        "wall_s": 0.724520597,
+        "user_s": 0.71256,
+        "system_s": 0.011607,
+        "peak_rss_kib": 20800
+      },
+      "decode": {
+        "wall_s": 0.137619158,
+        "user_s": 0.122024,
+        "system_s": 0.015076,
+        "peak_rss_kib": 6432
+      }
+    },
+    {
+      "dataset": "silesia/x-ray",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 5350875,
+      "archive_sha256": "d52e19c3789b9f486fa49196381041611527d2ee6bbbdc55a4a7c0f7a8120a1c",
+      "encode": {
+        "wall_s": 0.772225943,
+        "user_s": 0.730929,
+        "system_s": 0.035799,
+        "peak_rss_kib": 20780
+      },
+      "decode": {
+        "wall_s": 0.142305452,
+        "user_s": 0.126216,
+        "system_s": 0.015945,
+        "peak_rss_kib": 6432
+      }
+    },
+    {
+      "dataset": "silesia/xml",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 3343866,
+      "archive_sha256": "dfdb5866010158d8ee7e48bf6472e0cacde469e66d2b958241ac4a00cb023451",
+      "encode": {
+        "wall_s": 0.514353995,
+        "user_s": 0.502116,
+        "system_s": 0.011863,
+        "peak_rss_kib": 14236
+      },
+      "decode": {
+        "wall_s": 0.0816808,
+        "user_s": 0.073048,
+        "system_s": 0.008515,
+        "peak_rss_kib": 4532
+      }
+    },
+    {
+      "dataset": "silesia/xml",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 3343866,
+      "archive_sha256": "dfdb5866010158d8ee7e48bf6472e0cacde469e66d2b958241ac4a00cb023451",
+      "encode": {
+        "wall_s": 0.523629231,
+        "user_s": 0.515056,
+        "system_s": 0.008285,
+        "peak_rss_kib": 14236
+      },
+      "decode": {
+        "wall_s": 0.079970859,
+        "user_s": 0.079865,
+        "system_s": 0.0,
+        "peak_rss_kib": 4496
+      }
+    },
+    {
+      "dataset": "local/git-elf",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 3100013,
+      "archive_sha256": "dbee341ea78519504000439ed45dec456db906398152f61f62035c773b8a5569",
+      "encode": {
+        "wall_s": 0.377556462,
+        "user_s": 0.34676,
+        "system_s": 0.027806,
+        "peak_rss_kib": 12480
+      },
+      "decode": {
+        "wall_s": 0.06092681,
+        "user_s": 0.056678,
+        "system_s": 0.004,
+        "peak_rss_kib": 4244
+      }
+    },
+    {
+      "dataset": "local/git-elf",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 3100013,
+      "archive_sha256": "dbee341ea78519504000439ed45dec456db906398152f61f62035c773b8a5569",
+      "encode": {
+        "wall_s": 0.331860483,
+        "user_s": 0.319153,
+        "system_s": 0.012363,
+        "peak_rss_kib": 12332
+      },
+      "decode": {
+        "wall_s": 0.073172883,
+        "user_s": 0.065816,
+        "system_s": 0.006982,
+        "peak_rss_kib": 4280
+      }
+    },
+    {
+      "dataset": "local/git-xz",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 1633324,
+      "archive_sha256": "a6ed53a5efe19c5fc01b3c7242812ace014262e6e9bf99166cbb8d61be600f23",
+      "encode": {
+        "wall_s": 0.128763475,
+        "user_s": 0.12862,
+        "system_s": 0.0,
+        "peak_rss_kib": 6084
+      },
+      "decode": {
+        "wall_s": 0.012493447,
+        "user_s": 0.008204,
+        "system_s": 0.004123,
+        "peak_rss_kib": 2860
+      }
+    },
+    {
+      "dataset": "local/git-xz",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 1633324,
+      "archive_sha256": "a6ed53a5efe19c5fc01b3c7242812ace014262e6e9bf99166cbb8d61be600f23",
+      "encode": {
+        "wall_s": 0.12174153,
+        "user_s": 0.117202,
+        "system_s": 0.004076,
+        "peak_rss_kib": 6168
+      },
+      "decode": {
+        "wall_s": 0.013049827,
+        "user_s": 0.008469,
+        "system_s": 0.004344,
+        "peak_rss_kib": 2832
+      }
+    },
+    {
+      "dataset": "generated/random.bin",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 1049560,
+      "archive_sha256": "def9621f733ca779cdd76ce042c0ccf5cb339d477d2fa395b7d3fd78409aeee1",
+      "encode": {
+        "wall_s": 0.085896047,
+        "user_s": 0.081238,
+        "system_s": 0.004244,
+        "peak_rss_kib": 4508
+      },
+      "decode": {
+        "wall_s": 0.008374396,
+        "user_s": 0.00813,
+        "system_s": 0.0,
+        "peak_rss_kib": 2376
+      }
+    },
+    {
+      "dataset": "generated/random.bin",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 1049560,
+      "archive_sha256": "def9621f733ca779cdd76ce042c0ccf5cb339d477d2fa395b7d3fd78409aeee1",
+      "encode": {
+        "wall_s": 0.080539028,
+        "user_s": 0.073457,
+        "system_s": 0.006793,
+        "peak_rss_kib": 4384
+      },
+      "decode": {
+        "wall_s": 0.017387053,
+        "user_s": 0.009765,
+        "system_s": 0.007513,
+        "peak_rss_kib": 2432
+      }
+    },
+    {
+      "dataset": "generated/numeric.bin",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 29058,
+      "archive_sha256": "bf6541a34281cc3bd8bd28c199bd6716235a05165d5b7b9ad5c664ea1d0f5f12",
+      "encode": {
+        "wall_s": 0.020924817,
+        "user_s": 0.016734,
+        "system_s": 0.004052,
+        "peak_rss_kib": 1600
+      },
+      "decode": {
+        "wall_s": 0.003951625,
+        "user_s": 0.003882,
+        "system_s": 0.0,
+        "peak_rss_kib": 1304
+      }
+    },
+    {
+      "dataset": "generated/numeric.bin",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 29058,
+      "archive_sha256": "bf6541a34281cc3bd8bd28c199bd6716235a05165d5b7b9ad5c664ea1d0f5f12",
+      "encode": {
+        "wall_s": 0.02166902,
+        "user_s": 0.021557,
+        "system_s": 0.0,
+        "peak_rss_kib": 1572
+      },
+      "decode": {
+        "wall_s": 0.004560349,
+        "user_s": 0.00441,
+        "system_s": 0.0,
+        "peak_rss_kib": 1208
+      }
+    },
+    {
+      "dataset": "generated/records.sqlite",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 294550,
+      "archive_sha256": "b8ca339e746bd3f3f392c32194928b38492ca182d43a1b86da37d17207ee99bc",
+      "encode": {
+        "wall_s": 0.04843179,
+        "user_s": 0.048319,
+        "system_s": 0.0,
+        "peak_rss_kib": 2352
+      },
+      "decode": {
+        "wall_s": 0.006812752,
+        "user_s": 0.003288,
+        "system_s": 0.003359,
+        "peak_rss_kib": 1572
+      }
+    },
+    {
+      "dataset": "generated/records.sqlite",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 294550,
+      "archive_sha256": "b8ca339e746bd3f3f392c32194928b38492ca182d43a1b86da37d17207ee99bc",
+      "encode": {
+        "wall_s": 0.046906395,
+        "user_s": 0.046773,
+        "system_s": 0.0,
+        "peak_rss_kib": 2380
+      },
+      "decode": {
+        "wall_s": 0.006828653,
+        "user_s": 0.006588,
+        "system_s": 0.0,
+        "peak_rss_kib": 1596
+      }
+    },
+    {
+      "dataset": "generated/source.tar",
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 78784,
+      "archive_sha256": "fa6a3f86f5aa9679d73fd8c4c0c11979d5daeb75d01e0ee9e770451252ab2151",
+      "encode": {
+        "wall_s": 0.014021418,
+        "user_s": 0.013891,
+        "system_s": 0.0,
+        "peak_rss_kib": 1692
+      },
+      "decode": {
+        "wall_s": 0.003023682,
+        "user_s": 0.002851,
+        "system_s": 0.0,
+        "peak_rss_kib": 1432
+      }
+    },
+    {
+      "dataset": "generated/source.tar",
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 78784,
+      "archive_sha256": "fa6a3f86f5aa9679d73fd8c4c0c11979d5daeb75d01e0ee9e770451252ab2151",
+      "encode": {
+        "wall_s": 0.01402219,
+        "user_s": 0.010369,
+        "system_s": 0.003566,
+        "peak_rss_kib": 1596
+      },
+      "decode": {
+        "wall_s": 0.003056173,
+        "user_s": 0.002858,
+        "system_s": 0.0,
+        "peak_rss_kib": 1428
+      }
+    }
+  ],
+  "multifile": [
+    {
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 263316,
+      "archive_sha256": "48d876e0f4a532d8c48117e4babe32e8330657a695832d1cc2ecc304520ea78b",
+      "encode": {
+        "wall_s": 0.107458049,
+        "user_s": 0.107169,
+        "system_s": 0.0,
+        "peak_rss_kib": 3012
+      },
+      "extract": [
+        {
+          "wall_s": 0.004295862,
+          "user_s": 0.002814,
+          "system_s": 0.0,
+          "peak_rss_kib": 1600
+        },
+        {
+          "wall_s": 0.003820489,
+          "user_s": 0.003567,
+          "system_s": 0.0,
+          "peak_rss_kib": 1604
+        },
+        {
+          "wall_s": 0.004099644,
+          "user_s": 0.004023,
+          "system_s": 0.0,
+          "peak_rss_kib": 1560
+        }
+      ],
+      "tags": [
+        17,
+        0,
+        21,
+        11,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-references",
+      "rep": 0,
+      "archive_bytes": 787230,
+      "archive_sha256": "433d466b4738dcb43728d9e683175168188f585ab884ceceddf6e0f2f749c0a6",
+      "encode": {
+        "wall_s": 0.052908499,
+        "user_s": 0.048527,
+        "system_s": 0.004109,
+        "peak_rss_kib": 3132
+      },
+      "extract": [
+        {
+          "wall_s": 0.004939392,
+          "user_s": 0.004869,
+          "system_s": 0.0,
+          "peak_rss_kib": 2108
+        },
+        {
+          "wall_s": 0.004511187,
+          "user_s": 0.004439,
+          "system_s": 0.0,
+          "peak_rss_kib": 2084
+        },
+        {
+          "wall_s": 0.004441106,
+          "user_s": 0.004367,
+          "system_s": 0.0,
+          "peak_rss_kib": 2080
+        }
+      ],
+      "tags": [
+        49,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-delta",
+      "rep": 0,
+      "archive_bytes": 443166,
+      "archive_sha256": "fcb1f3119f9204e6ec956d83500f885f51f7f339a299de263cb2cdd28d8b6311",
+      "encode": {
+        "wall_s": 0.037000379,
+        "user_s": 0.02948,
+        "system_s": 0.007342,
+        "peak_rss_kib": 2844
+      },
+      "extract": [
+        {
+          "wall_s": 0.003681067,
+          "user_s": 0.003576,
+          "system_s": 0.0,
+          "peak_rss_kib": 1712
+        },
+        {
+          "wall_s": 0.004357869,
+          "user_s": 0.0,
+          "system_s": 0.004288,
+          "peak_rss_kib": 1692
+        },
+        {
+          "wall_s": 0.004372837,
+          "user_s": 0.004012,
+          "system_s": 0.0,
+          "peak_rss_kib": 1732
+        }
+      ],
+      "tags": [
+        28,
+        0,
+        21,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-rans",
+      "rep": 0,
+      "archive_bytes": 263316,
+      "archive_sha256": "48d876e0f4a532d8c48117e4babe32e8330657a695832d1cc2ecc304520ea78b",
+      "encode": {
+        "wall_s": 0.104268434,
+        "user_s": 0.099087,
+        "system_s": 0.004994,
+        "peak_rss_kib": 3016
+      },
+      "extract": [
+        {
+          "wall_s": 0.00798782,
+          "user_s": 0.007874,
+          "system_s": 0.0,
+          "peak_rss_kib": 1556
+        },
+        {
+          "wall_s": 0.003926914,
+          "user_s": 0.003844,
+          "system_s": 0.0,
+          "peak_rss_kib": 1592
+        },
+        {
+          "wall_s": 0.004043378,
+          "user_s": 0.003974,
+          "system_s": 0.0,
+          "peak_rss_kib": 1580
+        }
+      ],
+      "tags": [
+        17,
+        0,
+        21,
+        11,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-predict",
+      "rep": 0,
+      "archive_bytes": 263316,
+      "archive_sha256": "48d876e0f4a532d8c48117e4babe32e8330657a695832d1cc2ecc304520ea78b",
+      "encode": {
+        "wall_s": 0.095969881,
+        "user_s": 0.087169,
+        "system_s": 0.008481,
+        "peak_rss_kib": 3020
+      },
+      "extract": [
+        {
+          "wall_s": 0.002876445,
+          "user_s": 0.002797,
+          "system_s": 0.0,
+          "peak_rss_kib": 1588
+        },
+        {
+          "wall_s": 0.003689714,
+          "user_s": 0.003628,
+          "system_s": 0.0,
+          "peak_rss_kib": 1560
+        },
+        {
+          "wall_s": 0.004271472,
+          "user_s": 0.004047,
+          "system_s": 0.0,
+          "peak_rss_kib": 1580
+        }
+      ],
+      "tags": [
+        17,
+        0,
+        21,
+        11,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 263316,
+      "archive_sha256": "48d876e0f4a532d8c48117e4babe32e8330657a695832d1cc2ecc304520ea78b",
+      "encode": {
+        "wall_s": 0.108786054,
+        "user_s": 0.108415,
+        "system_s": 0.0,
+        "peak_rss_kib": 3092
+      },
+      "extract": [
+        {
+          "wall_s": 0.003082412,
+          "user_s": 0.002879,
+          "system_s": 0.0,
+          "peak_rss_kib": 1600
+        },
+        {
+          "wall_s": 0.003564138,
+          "user_s": 0.0,
+          "system_s": 0.003499,
+          "peak_rss_kib": 1560
+        },
+        {
+          "wall_s": 0.004137164,
+          "user_s": 0.004042,
+          "system_s": 0.0,
+          "peak_rss_kib": 1588
+        }
+      ],
+      "tags": [
+        17,
+        0,
+        21,
+        11,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-references",
+      "rep": 1,
+      "archive_bytes": 787230,
+      "archive_sha256": "433d466b4738dcb43728d9e683175168188f585ab884ceceddf6e0f2f749c0a6",
+      "encode": {
+        "wall_s": 0.050713177,
+        "user_s": 0.050463,
+        "system_s": 0.0,
+        "peak_rss_kib": 3136
+      },
+      "extract": [
+        {
+          "wall_s": 0.004749515,
+          "user_s": 0.004671,
+          "system_s": 0.0,
+          "peak_rss_kib": 2088
+        },
+        {
+          "wall_s": 0.004834444,
+          "user_s": 0.00474,
+          "system_s": 0.0,
+          "peak_rss_kib": 2072
+        },
+        {
+          "wall_s": 0.004550261,
+          "user_s": 0.0,
+          "system_s": 0.004397,
+          "peak_rss_kib": 2112
+        }
+      ],
+      "tags": [
+        49,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-delta",
+      "rep": 1,
+      "archive_bytes": 443166,
+      "archive_sha256": "fcb1f3119f9204e6ec956d83500f885f51f7f339a299de263cb2cdd28d8b6311",
+      "encode": {
+        "wall_s": 0.064896339,
+        "user_s": 0.060332,
+        "system_s": 0.004047,
+        "peak_rss_kib": 2736
+      },
+      "extract": [
+        {
+          "wall_s": 0.01136161,
+          "user_s": 0.003663,
+          "system_s": 0.007181,
+          "peak_rss_kib": 1684
+        },
+        {
+          "wall_s": 0.005168933,
+          "user_s": 0.00508,
+          "system_s": 0.0,
+          "peak_rss_kib": 1708
+        },
+        {
+          "wall_s": 0.006499082,
+          "user_s": 0.006277,
+          "system_s": 0.0,
+          "peak_rss_kib": 1684
+        }
+      ],
+      "tags": [
+        28,
+        0,
+        21,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-rans",
+      "rep": 1,
+      "archive_bytes": 263316,
+      "archive_sha256": "48d876e0f4a532d8c48117e4babe32e8330657a695832d1cc2ecc304520ea78b",
+      "encode": {
+        "wall_s": 0.08600405,
+        "user_s": 0.085849,
+        "system_s": 0.0,
+        "peak_rss_kib": 3000
+      },
+      "extract": [
+        {
+          "wall_s": 0.003461164,
+          "user_s": 0.003387,
+          "system_s": 0.0,
+          "peak_rss_kib": 1560
+        },
+        {
+          "wall_s": 0.003763989,
+          "user_s": 0.003658,
+          "system_s": 0.0,
+          "peak_rss_kib": 1592
+        },
+        {
+          "wall_s": 0.004294179,
+          "user_s": 0.004094,
+          "system_s": 0.0,
+          "peak_rss_kib": 1596
+        }
+      ],
+      "tags": [
+        17,
+        0,
+        21,
+        11,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-predict",
+      "rep": 1,
+      "archive_bytes": 263316,
+      "archive_sha256": "48d876e0f4a532d8c48117e4babe32e8330657a695832d1cc2ecc304520ea78b",
+      "encode": {
+        "wall_s": 0.088919272,
+        "user_s": 0.084193,
+        "system_s": 0.004091,
+        "peak_rss_kib": 3100
+      },
+      "extract": [
+        {
+          "wall_s": 0.002853863,
+          "user_s": 0.002777,
+          "system_s": 0.0,
+          "peak_rss_kib": 1584
+        },
+        {
+          "wall_s": 0.003379641,
+          "user_s": 0.003316,
+          "system_s": 0.0,
+          "peak_rss_kib": 1576
+        },
+        {
+          "wall_s": 0.004008633,
+          "user_s": 0.003942,
+          "system_s": 0.0,
+          "peak_rss_kib": 1568
+        }
+      ],
+      "tags": [
+        17,
+        0,
+        21,
+        11,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

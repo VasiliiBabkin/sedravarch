@@ -48,3 +48,5 @@ sadm analyze input0
 ```
 
 The CLI creates new output paths exclusively. A failed write or verification during extraction removes the new output when possible. Library consumers must discard partial output on extraction error. Experimental versions may change the wire format.
+
+The default encoder uses fixed 16 KiB blocks with a shorter final block. `--multiscale` enables the alternate 4/8/16 KiB shortest-path search. Both use the same wire format.

@@ -26,6 +26,13 @@ def frontier(table):
 
 def main():
     raw = json.load(open(sys.argv[1], encoding="utf-8"))
+    if len(sys.argv) > 2:
+        with open(sys.argv[2], encoding="utf-8") as source:
+            selected = json.load(source)
+        assert raw["inputs"] == selected["inputs"], "selected-profile input mismatch"
+        raw["single_file"] = [r for r in raw["single_file"] if r["tool"] != "sadm"] + selected["single_file"]
+        raw["multifile"] = ([r for r in raw["multifile"] if not r["tool"].startswith("sadm")]
+                            + selected["multifile"])
     grouped = defaultdict(lambda: defaultdict(list))
     for row in raw["single_file"]:
         grouped[row["tool"]][row["dataset"]].append(row)
@@ -34,6 +41,8 @@ def main():
     for prefix in ("canterbury", "silesia", "generated", "local"):
         table = {}
         paths = [path for path in raw["inputs"] if path.startswith(prefix + "/")]
+        if not paths:
+            continue
         length = sum(raw["inputs"][path]["bytes"] for path in paths)
         for tool in sorted(base):
             cases = [grouped[tool][path] for path in paths]
@@ -63,7 +72,7 @@ def main():
         }
     ablation = {}
     for tool, datasets in sorted(grouped.items()):
-        if tool.startswith("sadm-no-"):
+        if len(sys.argv) == 2 and tool.startswith("sadm-no-"):
             ablation[tool] = {
                 path: {"bytes_delta": int(median(rows, "archive_bytes") - median(grouped["sadm"][path], "archive_bytes")),
                        "encode_speedup": median(grouped["sadm"][path], "encode", "wall_s") / median(rows, "encode", "wall_s")}

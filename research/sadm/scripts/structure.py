@@ -85,6 +85,26 @@ def png_probe(data):
     raise ValueError("missing PNG terminator")
 
 
+def numeric_probe(data, root, sadm):
+    if len(data) % 4:
+        raise ValueError("u32 array extent")
+    lane_length = len(data) // 4
+    lanes = b"".join(data[lane::4] for lane in range(4))
+    source, archive, restored = [root / name for name in ("lanes", "candidate", "restored-lanes")]
+    source.write_bytes(lanes)
+    subprocess.run([sadm, "encode", archive, source], check=True)
+    subprocess.run([sadm, "decode", archive, restored], check=True)
+    shuffled = restored.read_bytes()
+    rebuilt = bytearray(len(data))
+    for lane in range(4):
+        rebuilt[lane::4] = shuffled[lane * lane_length:(lane + 1) * lane_length]
+    assert rebuilt == data
+    size = archive.stat().st_size + 1  # one-byte transform selector in an external envelope
+    for path in [source, archive, restored]:
+        path.unlink()
+    return size
+
+
 def x86_probe(data):
     filters = [{"id": lzma.FILTER_X86}, {"id": lzma.FILTER_LZMA2, "preset": 6}]
     transformed = lzma.compress(data, filters=filters)
@@ -98,6 +118,8 @@ def x86_probe(data):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--preflate", type=Path)
+    parser.add_argument("--preflate-revision")
     parser.add_argument("samples", metavar="LABEL:KIND:PATH", nargs="+")
     args = parser.parse_args()
     rows = []
@@ -118,6 +140,12 @@ def main():
                 if not data.startswith(b"\x89PNG\r\n\x1a\n"):
                     raise ValueError("PNG magic")
                 result["idat"] = png_probe(data)
+            if args.preflate and kind in {"pdf", "png", "zip"}:
+                diagnostic = json.loads(subprocess.check_output([args.preflate.resolve(), path]))
+                zstd = subprocess.check_output(["zstd", "-9", "-T1", "-cq", path])
+                diagnostic["zstd9_bytes"] = len(zstd)
+                diagnostic["choose_preflate"] = diagnostic["archive_bytes"] < len(zstd)
+                result["preflate"] = diagnostic
             archive = Path(temp) / "archive"
             restored = Path(temp) / "restored"
             sadm = REPO / "research/sadm/target/release/sadm"
@@ -133,8 +161,17 @@ def main():
                 result[f"{name}_bytes"] = archive.stat().st_size
                 archive.unlink()
                 restored.unlink()
+            if kind == "u32":
+                original_bytes = result["sadm_bytes"] + 1
+                candidate_bytes = numeric_probe(data, Path(temp), sadm)
+                result["byte_shuffle"] = {"direct_bytes": original_bytes, "transformed_bytes": candidate_bytes,
+                                          "choose_shuffle": candidate_bytes < original_bytes}
             rows.append(result)
-    args.out.write_text(json.dumps({"zlib": zlib.ZLIB_RUNTIME_VERSION, "rows": rows}, indent=2) + "\n")
+    header = {"zlib": zlib.ZLIB_RUNTIME_VERSION, "preflate_revision": args.preflate_revision,
+              "xz": subprocess.check_output(["xz", "--version"], text=True).strip(),
+              "zstd": subprocess.check_output(["zstd", "--version"], text=True).strip(),
+              "rows": rows}
+    args.out.write_text(json.dumps(header, indent=2) + "\n")
 
 
 if __name__ == "__main__":

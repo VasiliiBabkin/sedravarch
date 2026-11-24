@@ -1,0 +1,279 @@
+{
+  "binaries_sha256": [
+    "05275a8c6664bab79206f00dee7d252bdb1c3522e7b1b3a472d881a1253e2f7b",
+    "b01e617cf388e12513a60fe662bdbb297514805dc283710cafcc5fd00355a297"
+  ],
+  "affinity_count": 3,
+  "rows": [
+    {
+      "path": "/usr/bin/git",
+      "input_bytes": 4082768,
+      "input_sha256": "356db14e102d68a1a37d8a1ac577dfd678d45d46e92f468bef8b7154e7bfdc60",
+      "archive_bytes": 3095819,
+      "archive_sha256": "6e02d93c31d271f2f1fc4764742f44fac38812e3ef9ba00cee9e0800466162ef",
+      "repetition": 0,
+      "before": {
+        "wall_s": 3.428633498,
+        "cpu_s": 3.4161409999999997,
+        "peak_rss_kib": 20028
+      },
+      "after": {
+        "wall_s": 2.461795807,
+        "cpu_s": 2.451419,
+        "peak_rss_kib": 23980
+      }
+    },
+    {
+      "path": "/usr/bin/git",
+      "input_bytes": 4082768,
+      "input_sha256": "356db14e102d68a1a37d8a1ac577dfd678d45d46e92f468bef8b7154e7bfdc60",
+      "archive_bytes": 3095819,
+      "archive_sha256": "6e02d93c31d271f2f1fc4764742f44fac38812e3ef9ba00cee9e0800466162ef",
+      "repetition": 1,
+      "before": {
+        "wall_s": 3.519377419,
+        "cpu_s": 3.464283,
+        "peak_rss_kib": 20012
+      },
+      "after": {
+        "wall_s": 2.488989916,
+        "cpu_s": 2.487107,
+        "peak_rss_kib": 23940
+      }
+    },
+    {
+      "path": "/usr/bin/git",
+      "input_bytes": 4082768,
+      "input_sha256": "356db14e102d68a1a37d8a1ac577dfd678d45d46e92f468bef8b7154e7bfdc60",
+      "archive_bytes": 3095819,
+      "archive_sha256": "6e02d93c31d271f2f1fc4764742f44fac38812e3ef9ba00cee9e0800466162ef",
+      "repetition": 2,
+      "before": {
+        "wall_s": 3.484027968,
+        "cpu_s": 3.470365,
+        "peak_rss_kib": 20012
+      },
+      "after": {
+        "wall_s": 2.555815611,
+        "cpu_s": 2.55385,
+        "peak_rss_kib": 23988
+      }
+    },
+    {
+      "path": "/usr/bin/git",
+      "input_bytes": 4082768,
+      "input_sha256": "356db14e102d68a1a37d8a1ac577dfd678d45d46e92f468bef8b7154e7bfdc60",
+      "archive_bytes": 3095819,
+      "archive_sha256": "6e02d93c31d271f2f1fc4764742f44fac38812e3ef9ba00cee9e0800466162ef",
+      "repetition": 3,
+      "before": {
+        "wall_s": 3.484161321,
+        "cpu_s": 3.4730149999999997,
+        "peak_rss_kib": 20120
+      },
+      "after": {
+        "wall_s": 2.434531981,
+        "cpu_s": 2.432012,
+        "peak_rss_kib": 23812
+      }
+    },
+    {
+      "path": "/usr/bin/git",
+      "input_bytes": 4082768,
+      "input_sha256": "356db14e102d68a1a37d8a1ac577dfd678d45d46e92f468bef8b7154e7bfdc60",
+      "archive_bytes": 3095819,
+      "archive_sha256": "6e02d93c31d271f2f1fc4764742f44fac38812e3ef9ba00cee9e0800466162ef",
+      "repetition": 4,
+      "before": {
+        "wall_s": 3.637893462,
+        "cpu_s": 3.611261,
+        "peak_rss_kib": 20116
+      },
+      "after": {
+        "wall_s": 2.414626848,
+        "cpu_s": 2.4058,
+        "peak_rss_kib": 23996
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/canterbury/canterbury/alice29.txt",
+      "input_bytes": 152089,
+      "input_sha256": "7467306ee0feed4971260f3c87421154a05be571d944e9cb021a5713700c38f0",
+      "archive_bytes": 88831,
+      "archive_sha256": "4e7c253f9b36082b8b1046f5758d75cf2687b32ffb9c37db177eb328f46b509b",
+      "repetition": 0,
+      "before": {
+        "wall_s": 0.119780676,
+        "cpu_s": 0.119544,
+        "peak_rss_kib": 1828
+      },
+      "after": {
+        "wall_s": 0.095109117,
+        "cpu_s": 0.094712,
+        "peak_rss_kib": 2200
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/canterbury/canterbury/alice29.txt",
+      "input_bytes": 152089,
+      "input_sha256": "7467306ee0feed4971260f3c87421154a05be571d944e9cb021a5713700c38f0",
+      "archive_bytes": 88831,
+      "archive_sha256": "4e7c253f9b36082b8b1046f5758d75cf2687b32ffb9c37db177eb328f46b509b",
+      "repetition": 1,
+      "before": {
+        "wall_s": 0.12028926,
+        "cpu_s": 0.119928,
+        "peak_rss_kib": 1944
+      },
+      "after": {
+        "wall_s": 0.087459412,
+        "cpu_s": 0.087293,
+        "peak_rss_kib": 2204
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/canterbury/canterbury/alice29.txt",
+      "input_bytes": 152089,
+      "input_sha256": "7467306ee0feed4971260f3c87421154a05be571d944e9cb021a5713700c38f0",
+      "archive_bytes": 88831,
+      "archive_sha256": "4e7c253f9b36082b8b1046f5758d75cf2687b32ffb9c37db177eb328f46b509b",
+      "repetition": 2,
+      "before": {
+        "wall_s": 0.123938716,
+        "cpu_s": 0.12309,
+        "peak_rss_kib": 1848
+      },
+      "after": {
+        "wall_s": 0.113440332,
+        "cpu_s": 0.108637,
+        "peak_rss_kib": 2204
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/canterbury/canterbury/alice29.txt",
+      "input_bytes": 152089,
+      "input_sha256": "7467306ee0feed4971260f3c87421154a05be571d944e9cb021a5713700c38f0",
+      "archive_bytes": 88831,
+      "archive_sha256": "4e7c253f9b36082b8b1046f5758d75cf2687b32ffb9c37db177eb328f46b509b",
+      "repetition": 3,
+      "before": {
+        "wall_s": 0.124172283,
+        "cpu_s": 0.123837,
+        "peak_rss_kib": 1936
+      },
+      "after": {
+        "wall_s": 0.090280317,
+        "cpu_s": 0.089914,
+        "peak_rss_kib": 2200
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/canterbury/canterbury/alice29.txt",
+      "input_bytes": 152089,
+      "input_sha256": "7467306ee0feed4971260f3c87421154a05be571d944e9cb021a5713700c38f0",
+      "archive_bytes": 88831,
+      "archive_sha256": "4e7c253f9b36082b8b1046f5758d75cf2687b32ffb9c37db177eb328f46b509b",
+      "repetition": 4,
+      "before": {
+        "wall_s": 0.124187501,
+        "cpu_s": 0.12396,
+        "peak_rss_kib": 1836
+      },
+      "after": {
+        "wall_s": 0.091065574,
+        "cpu_s": 0.090782,
+        "peak_rss_kib": 2108
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/packed-w64.exe",
+      "input_bytes": 60928,
+      "input_sha256": "dc613a20ec1f4911612ffe2bd4c89a753e33ebb1de581e64cb88a18901ba1e12",
+      "archive_bytes": 53993,
+      "archive_sha256": "6549879458d115975572c5a7c1fccdd2f418718bb5867c7e2b34c8bc5fae4066",
+      "repetition": 0,
+      "before": {
+        "wall_s": 0.044037053,
+        "cpu_s": 0.043719,
+        "peak_rss_kib": 1552
+      },
+      "after": {
+        "wall_s": 0.032036231,
+        "cpu_s": 0.031723,
+        "peak_rss_kib": 1452
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/packed-w64.exe",
+      "input_bytes": 60928,
+      "input_sha256": "dc613a20ec1f4911612ffe2bd4c89a753e33ebb1de581e64cb88a18901ba1e12",
+      "archive_bytes": 53993,
+      "archive_sha256": "6549879458d115975572c5a7c1fccdd2f418718bb5867c7e2b34c8bc5fae4066",
+      "repetition": 1,
+      "before": {
+        "wall_s": 0.048028134,
+        "cpu_s": 0.042846,
+        "peak_rss_kib": 1448
+      },
+      "after": {
+        "wall_s": 0.031239863,
+        "cpu_s": 0.031019,
+        "peak_rss_kib": 1564
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/packed-w64.exe",
+      "input_bytes": 60928,
+      "input_sha256": "dc613a20ec1f4911612ffe2bd4c89a753e33ebb1de581e64cb88a18901ba1e12",
+      "archive_bytes": 53993,
+      "archive_sha256": "6549879458d115975572c5a7c1fccdd2f418718bb5867c7e2b34c8bc5fae4066",
+      "repetition": 2,
+      "before": {
+        "wall_s": 0.055639871,
+        "cpu_s": 0.051031,
+        "peak_rss_kib": 1440
+      },
+      "after": {
+        "wall_s": 0.053931253,
+        "cpu_s": 0.032421,
+        "peak_rss_kib": 1464
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/packed-w64.exe",
+      "input_bytes": 60928,
+      "input_sha256": "dc613a20ec1f4911612ffe2bd4c89a753e33ebb1de581e64cb88a18901ba1e12",
+      "archive_bytes": 53993,
+      "archive_sha256": "6549879458d115975572c5a7c1fccdd2f418718bb5867c7e2b34c8bc5fae4066",
+      "repetition": 3,
+      "before": {
+        "wall_s": 0.047146237,
+        "cpu_s": 0.047016,
+        "peak_rss_kib": 1560
+      },
+      "after": {
+        "wall_s": 0.03018373,
+        "cpu_s": 0.029879,
+        "peak_rss_kib": 1568
+      }
+    },
+    {
+      "path": "/tmp/sadm-inputs/packed-w64.exe",
+      "input_bytes": 60928,
+      "input_sha256": "dc613a20ec1f4911612ffe2bd4c89a753e33ebb1de581e64cb88a18901ba1e12",
+      "archive_bytes": 53993,
+      "archive_sha256": "6549879458d115975572c5a7c1fccdd2f418718bb5867c7e2b34c8bc5fae4066",
+      "repetition": 4,
+      "before": {
+        "wall_s": 0.045395869,
+        "cpu_s": 0.045234,
+        "peak_rss_kib": 1560
+      },
+      "after": {
+        "wall_s": 0.034313836,
+        "cpu_s": 0.03289,
+        "peak_rss_kib": 1464
+      }
+    }
+  ]
+}
