@@ -1,50 +1,10 @@
 #![cfg_attr(target_os="windows", windows_subsystem="windows")]
 use eframe::egui;
-use sedravarch::{archive::{self,Archive,Entry,DEFAULT_LIMIT},Options,Preset};
-use std::{fs::{self,File,OpenOptions},io::{self,BufReader,BufWriter},path::PathBuf,sync::mpsc::{self,Receiver},time::Duration};
+use sedravarch::{archive::Entry,Options,Preset};
+use std::{path::PathBuf,sync::mpsc::{self,Receiver},time::Duration};
 
-#[derive(Clone)]
-enum Task {
-    Open(PathBuf), Create(PathBuf,Vec<PathBuf>,Options), Test(PathBuf),
-    Extract(PathBuf,PathBuf), ExtractFile(PathBuf,String,PathBuf),
-    Pack(PathBuf,PathBuf,Options), Unpack(PathBuf,PathBuf),
-}
-enum ResultData{Opened(PathBuf,Vec<Entry>,bool),Message(String),Created(PathBuf)}
-fn stream(input:PathBuf,output:PathBuf,opts:Option<Options>)->io::Result<()>{
-    let input=BufReader::new(File::open(input)?);
-    let file=OpenOptions::new().write(true).create_new(true).open(&output)?;
-    let result=if let Some(o)=opts{sedravarch::compress_config(input,BufWriter::new(file),o)}
-    else{sedravarch::decompress(input,BufWriter::new(file),DEFAULT_LIMIT)};
-    if result.is_err(){let _=fs::remove_file(output);}
-    result
-}
-fn execute(task:Task)->io::Result<ResultData>{
-    match task{
-        Task::Open(p)=>{
-            let multi=archive::is_multi(&p)?;
-            if multi{let a=Archive::open(&p)?;Ok(ResultData::Opened(p,a.entries().to_vec(),true))}
-            else{
-                // Validate legacy stream before presenting it as an archive.
-                sedravarch::decompress(BufReader::new(File::open(&p)?),io::sink(),DEFAULT_LIMIT)?;
-                Ok(ResultData::Opened(p,Vec::new(),false))
-            }
-        }
-        Task::Create(p,inputs,o)=>{archive::create_config(&p,&inputs,o)?;Ok(ResultData::Created(p))}
-        Task::Test(p)=>{
-            if archive::is_multi(&p)?{Archive::open(&p)?.test(DEFAULT_LIMIT)?;}
-            else{sedravarch::decompress(BufReader::new(File::open(p)?),io::sink(),DEFAULT_LIMIT)?;}
-            Ok(ResultData::Message("Проверка завершена. Ошибок не обнаружено.".into()))
-        }
-        Task::Extract(p,d)=>{Archive::open(&p)?.extract(&d,DEFAULT_LIMIT)?;Ok(ResultData::Message(format!("Распаковано: {}",d.display())))}
-        Task::ExtractFile(p,n,d)=>{Archive::open(&p)?.extract_file(&n,&d,DEFAULT_LIMIT)?;Ok(ResultData::Message(format!("Извлечено: {}",d.display())))}
-        Task::Pack(p,d,o)=>{stream(p,d.clone(),Some(o))?;Ok(ResultData::Created(d))}
-        Task::Unpack(p,d)=>{stream(p,d.clone(),None)?;Ok(ResultData::Message(format!("Распаковано: {}",d.display())))}
-    }
-}
-fn size(n:u64)->String{
-    if n>=1024*1024 {format!("{:.2} МиБ",n as f64/1048576.)}
-    else if n>=1024{format!("{:.1} КиБ",n as f64/1024.)}else{format!("{n} Б")}
-}
+mod ops;
+use ops::{Task,ResultData,execute,size};
 fn open_dialog()->rfd::FileDialog{rfd::FileDialog::new().add_filter("SedravArch", &["sda"])}
 #[derive(Default,PartialEq)]
 enum Page{#[default] Browse,Create}
@@ -134,7 +94,7 @@ impl Desktop{
                 let e=filtered[i];
                 ui.horizontal(|ui|{
                     let label=if e.directory{format!("Каталог  {}",e.path)}else{e.path.clone()};
-                    if ui.add_enabled(!e.directory,egui::Button::selectable(self.selected.as_deref()==Some(e.path.as_str()),label)).clicked(){self.selected=Some(e.path.clone());}
+                    if ui.add_enabled(!e.directory,egui::SelectableLabel::new(self.selected.as_deref()==Some(e.path.as_str()),label)).clicked(){self.selected=Some(e.path.clone());}
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{ui.label(if e.directory{"—".into()}else{size(e.size)});});
                 });
             }
@@ -229,19 +189,5 @@ mod tests{
             app.page=page;
             let _=ctx.run(egui::RawInput::default(),|ctx|{egui::CentralPanel::default().show(ctx,|ui|match app.page{Page::Browse=>app.browse(ui,ctx),Page::Create=>app.create(ui,ctx)});});
         }
-    }
-    #[test] fn formatting(){assert_eq!(size(1024),"1.0 КиБ");assert_eq!(size(0),"0 Б");}
-    #[test] fn operation_pipeline(){
-        let root=std::env::temp_dir().join(format!("sedravarch-desktop-test-{}",std::process::id()));
-        fs::create_dir(&root).unwrap();
-        let input=root.join("data.txt");let arch=root.join("data.sda");let out=root.join("out");
-        fs::write(&input,b"SedravArch desktop").unwrap();
-        execute(Task::Create(arch.clone(),vec![input],Options::default())).unwrap();
-        let ResultData::Opened(_,entries,true)=execute(Task::Open(arch.clone())).unwrap() else{panic!("missing entries")};
-        assert_eq!(entries.len(),1);
-        execute(Task::Test(arch.clone())).unwrap();
-        execute(Task::ExtractFile(arch,"data.txt".into(),out.clone())).unwrap();
-        assert_eq!(fs::read(out).unwrap(),b"SedravArch desktop");
-        fs::remove_dir_all(root).unwrap();
     }
 }
