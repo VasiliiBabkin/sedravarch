@@ -1,0 +1,224 @@
+{
+  "zlib": "1.3.2",
+  "preflate_revision": "e97efb0031ff67e5c8f0154726422e31f6ed8424",
+  "xz": "xz (XZ Utils) 5.8.1\nliblzma 5.8.1",
+  "zstd": "*** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***",
+  "rows": [
+    {
+      "label": "distlib-w64",
+      "kind": "x86",
+      "input_bytes": 101888,
+      "sha256": "55b21889fd3d28799b834fba3d29482e7aa1b0519864b790e3914af7cdda666b",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/pip/_vendor/distlib/w64.exe",
+      "bcj": {
+        "xz_bytes": 43480,
+        "xz_bcj_bytes": 41712,
+        "choose_bcj": true
+      },
+      "sadm_bytes": 76507,
+      "sedravarch_bytes": 60040
+    },
+    {
+      "label": "distlib-w64-upx",
+      "kind": "x86",
+      "input_bytes": 60928,
+      "sha256": "dc613a20ec1f4911612ffe2bd4c89a753e33ebb1de581e64cb88a18901ba1e12",
+      "path": "/tmp/sadm-inputs/packed-w64.exe",
+      "bcj": {
+        "xz_bytes": 44880,
+        "xz_bcj_bytes": 44892,
+        "choose_bcj": false
+      },
+      "sadm_bytes": 53993,
+      "sedravarch_bytes": 49791
+    },
+    {
+      "label": "git",
+      "kind": "x86",
+      "input_bytes": 4082768,
+      "sha256": "356db14e102d68a1a37d8a1ac577dfd678d45d46e92f468bef8b7154e7bfdc60",
+      "path": "/usr/bin/git",
+      "bcj": {
+        "xz_bytes": 1631800,
+        "xz_bcj_bytes": 1503472,
+        "choose_bcj": true
+      },
+      "sadm_bytes": 3095819,
+      "sedravarch_bytes": 2431693
+    },
+    {
+      "label": "matplotlib-pdf",
+      "kind": "pdf",
+      "input_bytes": 9724,
+      "sha256": "00709b63ec54d7f2449704fd479a5b4aa0605386c2b37ab4f02ec1293bcc2f91",
+      "path": "/usr/lib/python3/dist-packages/matplotlib/tests/baseline_images/test_agg_filter/agg_filter_alpha.pdf",
+      "preflate": {
+        "archive_bytes": 4945,
+        "deflate_bytes_seen": 9724,
+        "correction_bytes": 98,
+        "zstd9_bytes": 4773,
+        "choose_preflate": false
+      },
+      "sadm_bytes": 8469,
+      "sedravarch_bytes": 5362
+    },
+    {
+      "label": "matplotlib-png",
+      "kind": "png",
+      "input_bytes": 302,
+      "sha256": "1e1c28ec0ee5da6224404b4005076dd30e2335a1a80c0ca722046a245c4a2b3b",
+      "path": "/usr/lib/python3/dist-packages/matplotlib/tests/baseline_images/pngsuite/basn2c16.png",
+      "idat": {
+        "compressed": 229,
+        "inflated": 6176,
+        "zlib_exact_levels": []
+      },
+      "preflate": {
+        "archive_bytes": 322,
+        "deflate_bytes_seen": 302,
+        "correction_bytes": 0,
+        "zstd9_bytes": 316,
+        "choose_preflate": false
+      },
+      "sadm_bytes": 341,
+      "sedravarch_bytes": 344
+    },
+    {
+      "label": "latin-modern",
+      "kind": "zip",
+      "input_bytes": 18455,
+      "sha256": "489ed42213c1a0e060d3ef6da1f9d84ea4e8ba2b6cbbd5032440d1b8655ba6d7",
+      "path": "/usr/share/texmf/doc/fonts/lm-math/test-word-latinmodern_math.docx",
+      "members": [
+        {
+          "compressed": 412,
+          "inflated": 1554,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 243,
+          "inflated": 590,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 376,
+          "inflated": 1290,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 3894,
+          "inflated": 61666,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 1715,
+          "inflated": 7105,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 1187,
+          "inflated": 3352,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 2279,
+          "inflated": 17027,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 194,
+          "inflated": 296,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 2143,
+          "inflated": 16274,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 225,
+          "inflated": 341,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 327,
+          "inflated": 631,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 140,
+          "inflated": 218,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 640,
+          "inflated": 2215,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 258,
+          "inflated": 428,
+          "zlib_exact_levels": []
+        },
+        {
+          "compressed": 488,
+          "inflated": 998,
+          "zlib_exact_levels": []
+        }
+      ],
+      "preflate": {
+        "archive_bytes": 10175,
+        "deflate_bytes_seen": 18455,
+        "correction_bytes": 385,
+        "zstd9_bytes": 15033,
+        "choose_preflate": true
+      },
+      "sadm_bytes": 18235,
+      "sedravarch_bytes": 15294
+    },
+    {
+      "label": "zlib-control",
+      "kind": "zip",
+      "input_bytes": 162,
+      "sha256": "2de514e84ecb0957c158a6cf16c5ef6679408056788c73ee0fa948cb3a4c9bff",
+      "path": "/tmp/sadm-inputs/zlib-control.zip",
+      "members": [
+        {
+          "compressed": 50,
+          "inflated": 9100,
+          "zlib_exact_levels": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "preflate": {
+        "archive_bytes": 156,
+        "deflate_bytes_seen": 162,
+        "correction_bytes": 26,
+        "zstd9_bytes": 128,
+        "choose_preflate": false
+      },
+      "sadm_bytes": 201,
+      "sedravarch_bytes": 160
+    },
+    {
+      "label": "u32-stride",
+      "kind": "u32",
+      "input_bytes": 262144,
+      "sha256": "68b596ba622626255710e54cfe15bcfb0e00b2ad9eb82785e5a0de3f39c9290f",
+      "path": "/tmp/sadm-inputs/u32-stride.bin",
+      "sadm_bytes": 29058,
+      "sedravarch_bytes": 186415,
+      "byte_shuffle": {
+        "direct_bytes": 29059,
+        "transformed_bytes": 1986,
+        "choose_shuffle": true
+      }
+    }
+  ]
+}

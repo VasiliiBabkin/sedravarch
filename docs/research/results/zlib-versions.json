@@ -1,0 +1,759 @@
+{
+  "baseline": "05a1c26662a15b10ce60cc56d568fb410051cfe0",
+  "environment": {
+    "uname": {
+      "system": "Linux",
+      "node": "16be73d4d5db",
+      "release": "6.18.57",
+      "version": "#1 SMP Tue Oct 20 21:56:04 UTC 2026",
+      "machine": "x86_64",
+      "processor": ""
+    },
+    "cpu_model": "AMD EPYC 7763 64-Core Processor",
+    "affinity_count": 3,
+    "cgroup": {
+      "cpu.max": "200000 100000",
+      "memory.max": "8589934592"
+    },
+    "python": "3.12.14",
+    "sqlite": "3.53.1"
+  },
+  "versions": {
+    "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)\nbinary: rustc\ncommit-hash: 0ef1bc386059596dada8fb65b50425aab2ea637a\ncommit-date: 2026-11-09\nhost: x86_64-unknown-linux-gnu\nrelease: 1.100.0\nLLVM version: 23.1.5",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+    "zstd": "*** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***",
+    "lz4": "*** lz4 v1.10.0 64-bit multithread, by Yann Collet ***",
+    "brotli": "brotli 1.1.0",
+    "gzip": "gzip 1.13\nCopyright (C) 2023 Free Software Foundation, Inc.\nCopyright (C) 1993 Jean-loup Gailly.\nThis is free software.  You may redistribute copies of it under the terms of\nthe GNU General Public License <https://www.gnu.org/licenses/gpl.html>.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by Jean-loup Gailly.",
+    "7zip": "7-Zip (z) 25.01 (x64) : Copyright (c) 1999-2025 Igor Pavlov : 2025-08-03",
+    "xz": "xz (XZ Utils) 5.8.1\nliblzma 5.8.1"
+  },
+  "binaries_sha256": {
+    "sadm": "b01e617cf388e12513a60fe662bdbb297514805dc283710cafcc5fd00355a297",
+    "sedravarch": "f14369c39d44fb19b84f3f862d1882e5dbe1fedb5409cba91b964dbd5dd907c4"
+  },
+  "sources": {},
+  "inputs": {
+    "family/v0-deflate-1.2.13.c": {
+      "bytes": 82274,
+      "sha256": "4470e36709ce7d6067fa3e8f60bb7f693b055bee42a0d6655ed71faa2db87fde"
+    },
+    "family/v1-deflate-1.3.c": {
+      "bytes": 80985,
+      "sha256": "45a600ccf05e0fc45398295daae9852a355f6f738723df8c1b0702a429f9915b"
+    },
+    "family/v2-deflate-1.3.1.c": {
+      "bytes": 81731,
+      "sha256": "3b956337350f94c34987750f785587ef33d9c89ceaebb7c2afb189c956360cbe"
+    },
+    "family/tar": {
+      "bytes": 256000,
+      "sha256": "d783819b6fa5263b80e5bbde0255a4bc293d829c52ee2a70e9505b0c2ab94d40"
+    }
+  },
+  "single_file": [],
+  "multifile": [
+    {
+      "tool": "sadm",
+      "rep": 0,
+      "archive_bytes": 115879,
+      "archive_sha256": "9600d63edb5d87950453fb594a6be02e3248a6be40570e7413f53576c0e8ac82",
+      "encode": {
+        "wall_s": 0.301717366,
+        "user_s": 0.300037,
+        "system_s": 0.0,
+        "peak_rss_kib": 2332
+      },
+      "extract": [
+        {
+          "wall_s": 0.002844702,
+          "user_s": 0.002767,
+          "system_s": 0.0,
+          "peak_rss_kib": 1340
+        },
+        {
+          "wall_s": 0.003010092,
+          "user_s": 0.0,
+          "system_s": 0.002941,
+          "peak_rss_kib": 1328
+        },
+        {
+          "wall_s": 0.002908962,
+          "user_s": 0.000463,
+          "system_s": 0.0,
+          "peak_rss_kib": 1408
+        }
+      ],
+      "tags": [
+        0,
+        12,
+        0,
+        8,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sedravarch-non-solid",
+      "rep": 0,
+      "archive_bytes": 78644,
+      "archive_sha256": "384cc2699fd83df528999499ed7695010bde1ae19111eac5bb0771a42bd54bcf",
+      "encode": {
+        "wall_s": 0.031647777,
+        "user_s": 0.031505,
+        "system_s": 0.0,
+        "peak_rss_kib": 2524
+      },
+      "extract": [
+        {
+          "wall_s": 0.002535251,
+          "user_s": 0.00247,
+          "system_s": 0.0,
+          "peak_rss_kib": 1296
+        },
+        {
+          "wall_s": 0.002695452,
+          "user_s": 0.002631,
+          "system_s": 0.0,
+          "peak_rss_kib": 1376
+        },
+        {
+          "wall_s": 0.002777215,
+          "user_s": 0.002606,
+          "system_s": 0.0,
+          "peak_rss_kib": 1364
+        }
+      ],
+      "tags": null
+    },
+    {
+      "tool": "sadm-no-multiscale",
+      "rep": 0,
+      "archive_bytes": 69253,
+      "archive_sha256": "096e8ec9bc4c69047333a8f04ae72fe562f6e487fdc22e0c40a1312fb7eb8ff7",
+      "encode": {
+        "wall_s": 0.081841577,
+        "user_s": 0.077651,
+        "system_s": 0.00373,
+        "peak_rss_kib": 2076
+      },
+      "extract": [
+        {
+          "wall_s": 0.002473996,
+          "user_s": 0.002402,
+          "system_s": 0.0,
+          "peak_rss_kib": 1416
+        },
+        {
+          "wall_s": 0.002788977,
+          "user_s": 0.00268,
+          "system_s": 0.0,
+          "peak_rss_kib": 1428
+        },
+        {
+          "wall_s": 0.00325951,
+          "user_s": 0.002796,
+          "system_s": 0.0,
+          "peak_rss_kib": 1416
+        }
+      ],
+      "tags": [
+        1,
+        5,
+        0,
+        10,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-references",
+      "rep": 0,
+      "archive_bytes": 148425,
+      "archive_sha256": "1e04ea50932ec9647ec35646ebbd81f74d365f74abf3cbc4cd634241752eee0b",
+      "encode": {
+        "wall_s": 0.146624517,
+        "user_s": 0.14268,
+        "system_s": 0.003563,
+        "peak_rss_kib": 1964
+      },
+      "extract": [
+        {
+          "wall_s": 0.003302281,
+          "user_s": 0.0,
+          "system_s": 0.003226,
+          "peak_rss_kib": 1460
+        },
+        {
+          "wall_s": 0.002556761,
+          "user_s": 0.002468,
+          "system_s": 0.0,
+          "peak_rss_kib": 1556
+        },
+        {
+          "wall_s": 0.003118436,
+          "user_s": 0.002853,
+          "system_s": 0.0,
+          "peak_rss_kib": 1452
+        }
+      ],
+      "tags": [
+        0,
+        16,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-delta",
+      "rep": 0,
+      "archive_bytes": 148425,
+      "archive_sha256": "1e04ea50932ec9647ec35646ebbd81f74d365f74abf3cbc4cd634241752eee0b",
+      "encode": {
+        "wall_s": 0.154348977,
+        "user_s": 0.153853,
+        "system_s": 0.0,
+        "peak_rss_kib": 2076
+      },
+      "extract": [
+        {
+          "wall_s": 0.003248068,
+          "user_s": 0.003145,
+          "system_s": 0.0,
+          "peak_rss_kib": 1564
+        },
+        {
+          "wall_s": 0.00282758,
+          "user_s": 0.002739,
+          "system_s": 0.0,
+          "peak_rss_kib": 1456
+        },
+        {
+          "wall_s": 0.00281215,
+          "user_s": 0.002662,
+          "system_s": 0.0,
+          "peak_rss_kib": 1464
+        }
+      ],
+      "tags": [
+        0,
+        16,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-rans",
+      "rep": 0,
+      "archive_bytes": 187882,
+      "archive_sha256": "7ed0b38c3fb5d21050b8976adaf8e463a2bfdca7f8f0f1b364c9600c87d5b893",
+      "encode": {
+        "wall_s": 0.164797697,
+        "user_s": 0.164373,
+        "system_s": 0.0,
+        "peak_rss_kib": 2332
+      },
+      "extract": [
+        {
+          "wall_s": 0.00266304,
+          "user_s": 0.0,
+          "system_s": 0.002567,
+          "peak_rss_kib": 1456
+        },
+        {
+          "wall_s": 0.002440683,
+          "user_s": 0.002353,
+          "system_s": 0.0,
+          "peak_rss_kib": 1444
+        },
+        {
+          "wall_s": 0.00280147,
+          "user_s": 0.002713,
+          "system_s": 0.0,
+          "peak_rss_kib": 1464
+        }
+      ],
+      "tags": [
+        12,
+        0,
+        0,
+        8,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-predict",
+      "rep": 0,
+      "archive_bytes": 115879,
+      "archive_sha256": "9600d63edb5d87950453fb594a6be02e3248a6be40570e7413f53576c0e8ac82",
+      "encode": {
+        "wall_s": 0.19546939,
+        "user_s": 0.191448,
+        "system_s": 0.0,
+        "peak_rss_kib": 2196
+      },
+      "extract": [
+        {
+          "wall_s": 0.003074013,
+          "user_s": 0.002833,
+          "system_s": 0.0,
+          "peak_rss_kib": 1324
+        },
+        {
+          "wall_s": 0.002909253,
+          "user_s": 0.002849,
+          "system_s": 0.0,
+          "peak_rss_kib": 1324
+        },
+        {
+          "wall_s": 0.003526332,
+          "user_s": 0.003465,
+          "system_s": 0.0,
+          "peak_rss_kib": 1428
+        }
+      ],
+      "tags": [
+        0,
+        12,
+        0,
+        8,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "7zip-solid-on",
+      "rep": 0,
+      "archive_bytes": 19017,
+      "archive_sha256": "a7fbce07800e69a2cb654123afa046a76bc739e1db07bfc9ca5a9ae5c18a5348",
+      "encode": {
+        "wall_s": 0.04619911,
+        "user_s": 0.037823,
+        "system_s": 0.008228,
+        "peak_rss_kib": 6532
+      },
+      "extract": [
+        {
+          "wall_s": 0.004854085,
+          "user_s": 0.002206,
+          "system_s": 0.002581,
+          "peak_rss_kib": 3968
+        },
+        {
+          "wall_s": 0.003633723,
+          "user_s": 0.003572,
+          "system_s": 0.0,
+          "peak_rss_kib": 4096
+        },
+        {
+          "wall_s": 0.003820454,
+          "user_s": 0.003753,
+          "system_s": 0.0,
+          "peak_rss_kib": 4088
+        }
+      ],
+      "tags": null
+    },
+    {
+      "tool": "7zip-solid-off",
+      "rep": 0,
+      "archive_bytes": 53644,
+      "archive_sha256": "16ddd58e4dfb28da1c733468ed6a1016abbe3d1b80f5560f1e210467f1363e8f",
+      "encode": {
+        "wall_s": 0.078289476,
+        "user_s": 0.062816,
+        "system_s": 0.00356,
+        "peak_rss_kib": 4996
+      },
+      "extract": [
+        {
+          "wall_s": 0.004614745,
+          "user_s": 0.0,
+          "system_s": 0.004398,
+          "peak_rss_kib": 3952
+        },
+        {
+          "wall_s": 0.003576797,
+          "user_s": 0.0,
+          "system_s": 0.003513,
+          "peak_rss_kib": 3716
+        },
+        {
+          "wall_s": 0.003389104,
+          "user_s": 0.0,
+          "system_s": 0.00332,
+          "peak_rss_kib": 3956
+        }
+      ],
+      "tags": null
+    },
+    {
+      "tool": "sadm",
+      "rep": 1,
+      "archive_bytes": 115879,
+      "archive_sha256": "9600d63edb5d87950453fb594a6be02e3248a6be40570e7413f53576c0e8ac82",
+      "encode": {
+        "wall_s": 0.302303246,
+        "user_s": 0.297941,
+        "system_s": 0.004117,
+        "peak_rss_kib": 2208
+      },
+      "extract": [
+        {
+          "wall_s": 0.002714106,
+          "user_s": 0.002647,
+          "system_s": 0.0,
+          "peak_rss_kib": 1316
+        },
+        {
+          "wall_s": 0.00313672,
+          "user_s": 0.002934,
+          "system_s": 0.0,
+          "peak_rss_kib": 1332
+        },
+        {
+          "wall_s": 0.003602415,
+          "user_s": 0.0034,
+          "system_s": 0.0,
+          "peak_rss_kib": 1436
+        }
+      ],
+      "tags": [
+        0,
+        12,
+        0,
+        8,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sedravarch-non-solid",
+      "rep": 1,
+      "archive_bytes": 78644,
+      "archive_sha256": "384cc2699fd83df528999499ed7695010bde1ae19111eac5bb0771a42bd54bcf",
+      "encode": {
+        "wall_s": 0.032692919,
+        "user_s": 0.032465,
+        "system_s": 0.0,
+        "peak_rss_kib": 2528
+      },
+      "extract": [
+        {
+          "wall_s": 0.002740907,
+          "user_s": 0.002672,
+          "system_s": 0.0,
+          "peak_rss_kib": 1368
+        },
+        {
+          "wall_s": 0.002652,
+          "user_s": 0.002593,
+          "system_s": 0.0,
+          "peak_rss_kib": 1368
+        },
+        {
+          "wall_s": 0.003015863,
+          "user_s": 0.0,
+          "system_s": 0.002801,
+          "peak_rss_kib": 1284
+        }
+      ],
+      "tags": null
+    },
+    {
+      "tool": "sadm-no-multiscale",
+      "rep": 1,
+      "archive_bytes": 69253,
+      "archive_sha256": "096e8ec9bc4c69047333a8f04ae72fe562f6e487fdc22e0c40a1312fb7eb8ff7",
+      "encode": {
+        "wall_s": 0.096679133,
+        "user_s": 0.096409,
+        "system_s": 0.0,
+        "peak_rss_kib": 1976
+      },
+      "extract": [
+        {
+          "wall_s": 0.002499413,
+          "user_s": 0.002422,
+          "system_s": 0.0,
+          "peak_rss_kib": 1428
+        },
+        {
+          "wall_s": 0.002592608,
+          "user_s": 0.0,
+          "system_s": 0.002521,
+          "peak_rss_kib": 1320
+        },
+        {
+          "wall_s": 0.002795003,
+          "user_s": 0.0,
+          "system_s": 0.002577,
+          "peak_rss_kib": 1320
+        }
+      ],
+      "tags": [
+        1,
+        5,
+        0,
+        10,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-references",
+      "rep": 1,
+      "archive_bytes": 148425,
+      "archive_sha256": "1e04ea50932ec9647ec35646ebbd81f74d365f74abf3cbc4cd634241752eee0b",
+      "encode": {
+        "wall_s": 0.146510794,
+        "user_s": 0.144814,
+        "system_s": 0.0,
+        "peak_rss_kib": 2076
+      },
+      "extract": [
+        {
+          "wall_s": 0.002953726,
+          "user_s": 0.0,
+          "system_s": 0.002744,
+          "peak_rss_kib": 1556
+        },
+        {
+          "wall_s": 0.00266577,
+          "user_s": 0.002448,
+          "system_s": 0.0,
+          "peak_rss_kib": 1448
+        },
+        {
+          "wall_s": 0.002688328,
+          "user_s": 0.002411,
+          "system_s": 0.0,
+          "peak_rss_kib": 1540
+        }
+      ],
+      "tags": [
+        0,
+        16,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-delta",
+      "rep": 1,
+      "archive_bytes": 148425,
+      "archive_sha256": "1e04ea50932ec9647ec35646ebbd81f74d365f74abf3cbc4cd634241752eee0b",
+      "encode": {
+        "wall_s": 0.157651307,
+        "user_s": 0.15344,
+        "system_s": 0.003797,
+        "peak_rss_kib": 1964
+      },
+      "extract": [
+        {
+          "wall_s": 0.002713535,
+          "user_s": 0.002645,
+          "system_s": 0.0,
+          "peak_rss_kib": 1468
+        },
+        {
+          "wall_s": 0.002567391,
+          "user_s": 0.002471,
+          "system_s": 0.0,
+          "peak_rss_kib": 1444
+        },
+        {
+          "wall_s": 0.002864158,
+          "user_s": 0.0,
+          "system_s": 0.002665,
+          "peak_rss_kib": 1540
+        }
+      ],
+      "tags": [
+        0,
+        16,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-rans",
+      "rep": 1,
+      "archive_bytes": 187882,
+      "archive_sha256": "7ed0b38c3fb5d21050b8976adaf8e463a2bfdca7f8f0f1b364c9600c87d5b893",
+      "encode": {
+        "wall_s": 0.148807742,
+        "user_s": 0.14628,
+        "system_s": 0.002135,
+        "peak_rss_kib": 2208
+      },
+      "extract": [
+        {
+          "wall_s": 0.00233286,
+          "user_s": 0.0,
+          "system_s": 0.00226,
+          "peak_rss_kib": 1452
+        },
+        {
+          "wall_s": 0.002168607,
+          "user_s": 0.002091,
+          "system_s": 0.0,
+          "peak_rss_kib": 1440
+        },
+        {
+          "wall_s": 0.002248121,
+          "user_s": 0.002184,
+          "system_s": 0.0,
+          "peak_rss_kib": 1456
+        }
+      ],
+      "tags": [
+        12,
+        0,
+        0,
+        8,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "sadm-no-predict",
+      "rep": 1,
+      "archive_bytes": 115879,
+      "archive_sha256": "9600d63edb5d87950453fb594a6be02e3248a6be40570e7413f53576c0e8ac82",
+      "encode": {
+        "wall_s": 0.197705559,
+        "user_s": 0.189768,
+        "system_s": 0.006146,
+        "peak_rss_kib": 2204
+      },
+      "extract": [
+        {
+          "wall_s": 0.002983172,
+          "user_s": 0.002913,
+          "system_s": 0.0,
+          "peak_rss_kib": 1416
+        },
+        {
+          "wall_s": 0.002889045,
+          "user_s": 0.002811,
+          "system_s": 0.0,
+          "peak_rss_kib": 1408
+        },
+        {
+          "wall_s": 0.002936324,
+          "user_s": 0.002749,
+          "system_s": 0.0,
+          "peak_rss_kib": 1412
+        }
+      ],
+      "tags": [
+        0,
+        12,
+        0,
+        8,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tool": "7zip-solid-on",
+      "rep": 1,
+      "archive_bytes": 19017,
+      "archive_sha256": "a7fbce07800e69a2cb654123afa046a76bc739e1db07bfc9ca5a9ae5c18a5348",
+      "encode": {
+        "wall_s": 0.03683182,
+        "user_s": 0.032586,
+        "system_s": 0.003937,
+        "peak_rss_kib": 6660
+      },
+      "extract": [
+        {
+          "wall_s": 0.003706685,
+          "user_s": 0.003634,
+          "system_s": 0.0,
+          "peak_rss_kib": 3712
+        },
+        {
+          "wall_s": 0.006720645,
+          "user_s": 0.000898,
+          "system_s": 0.005745,
+          "peak_rss_kib": 3908
+        },
+        {
+          "wall_s": 0.004389423,
+          "user_s": 0.0,
+          "system_s": 0.004207,
+          "peak_rss_kib": 3908
+        }
+      ],
+      "tags": null
+    },
+    {
+      "tool": "7zip-solid-off",
+      "rep": 1,
+      "archive_bytes": 53644,
+      "archive_sha256": "16ddd58e4dfb28da1c733468ed6a1016abbe3d1b80f5560f1e210467f1363e8f",
+      "encode": {
+        "wall_s": 0.046120312,
+        "user_s": 0.046044,
+        "system_s": 0.0,
+        "peak_rss_kib": 4868
+      },
+      "extract": [
+        {
+          "wall_s": 0.003610419,
+          "user_s": 0.003464,
+          "system_s": 0.0,
+          "peak_rss_kib": 3972
+        },
+        {
+          "wall_s": 0.003380317,
+          "user_s": 0.0,
+          "system_s": 0.003313,
+          "peak_rss_kib": 3968
+        },
+        {
+          "wall_s": 0.00322763,
+          "user_s": 0.0,
+          "system_s": 0.003114,
+          "peak_rss_kib": 3968
+        }
+      ],
+      "tags": null
+    }
+  ]
+}
