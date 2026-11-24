@@ -12,12 +12,16 @@ impl Chain {
         let h=hash3(d,i);
         self.prev[i]=self.head[h]; self.head[h]=i;
     }
+    #[cfg(test)]
     fn find(&self,d:&[u8],i:usize)->(usize,usize) {
+        self.find_search(d,i,SEARCH)
+    }
+    fn find_search(&self,d:&[u8],i:usize,search:usize)->(usize,usize){
         let cap=(d.len()-i).min(MAX);
         if cap<4 {return (0,0);}
         let mut p=self.head[hash3(d,i)];
         let (mut len,mut dist)=(0,0);
-        for _ in 0..SEARCH {
+        for _ in 0..search {
             if p==NONE || i-p>MAX {break;}
             if len<cap && d[p+len]==d[i+len] {
                 let mut n=0;
@@ -31,17 +35,18 @@ impl Chain {
     }
 }
 fn match_cost(n:usize)->usize { if n<=129 {3}else{5} }
-pub(crate) fn encode(d:&[u8])->Vec<u8> {
+pub(crate) fn encode(d:&[u8])->Vec<u8> {encode_search(d,SEARCH,true)}
+pub(crate) fn encode_search(d:&[u8],search:usize,lazy:bool)->Vec<u8>{
     let mut chain=Chain::new(d.len());
     let mut out=Vec::new();
     let (mut i,mut start)=(0,0);
     while i<d.len() {
-        let (n,dist)=chain.find(d,i);
+        let (n,dist)=chain.find_search(d,i,search);
         chain.insert(d,i);
         if n>=4 {
             // Defer a match when the next match more than offsets the added literal.
-            if n<d.len()-i {
-                let (next,_)=chain.find(d,i+1);
+            if lazy && n<d.len()-i {
+                let (next,_)=chain.find_search(d,i+1,search);
                 if next>=4 && next-match_cost(next)>n-match_cost(n)+1 {
                     i+=1; continue;
                 }
