@@ -13,7 +13,7 @@ mod win{
         Foundation::{HWND,LPARAM,LRESULT,WPARAM},
         Graphics::Gdi::{GetStockObject,UpdateWindow,DEFAULT_GUI_FONT},
         System::LibraryLoader::GetModuleHandleW,
-        UI::WindowsAndMessaging::*,
+        UI::{WindowsAndMessaging::*,Input::KeyboardAndMouse::EnableWindow},
     };
     const OPEN:usize=101;const ADD_FILES:usize=102;const ADD_DIR:usize=103;
     const CLEAR:usize=104;const CREATE:usize=105;const TEST:usize=106;
