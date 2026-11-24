@@ -35,7 +35,7 @@ fn run() -> io::Result<()> {
     let args: Vec<_> = std::env::args().skip(1).collect();
     let usage = || {
         io::Error::new(io::ErrorKind::InvalidInput,
-        "sadm encode [--no-multiscale|--no-references|--no-delta|--no-rans|--no-predict]... ARCHIVE INPUT... | decode ARCHIVE OUTPUT | extract ARCHIVE ORDINAL OUTPUT | verify ARCHIVE | stats ARCHIVE | analyze INPUT")
+        "sadm encode [--multiscale|--no-multiscale|--no-references|--no-delta|--no-rans|--no-predict]... ARCHIVE INPUT... | decode ARCHIVE OUTPUT | extract ARCHIVE ORDINAL OUTPUT | verify ARCHIVE | stats ARCHIVE | analyze INPUT")
     };
     match args.first().map(String::as_str) {
         Some("encode") => {
@@ -43,6 +43,7 @@ fn run() -> io::Result<()> {
             let mut rest = &args[1..];
             while let Some(flag) = rest.first().filter(|arg| arg.starts_with("--")) {
                 match flag.as_str() {
+                    "--multiscale" => options.multiscale = true,
                     "--no-multiscale" => options.multiscale = false,
                     "--no-references" => options.references = false,
                     "--no-delta" => options.delta = false,

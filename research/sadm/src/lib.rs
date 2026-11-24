@@ -67,7 +67,7 @@ pub struct Options {
 impl Default for Options {
     fn default() -> Self {
         Self {
-            multiscale: true,
+            multiscale: false,
             references: true,
             delta: true,
             rans: true,
