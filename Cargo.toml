@@ -1,0 +1,8 @@
+[package]
+name = "sedravarch"
+version = "0.1.0"
+edition = "2021"
+description = "Experimental adaptive lossless block codec"
+
+[profile.release]
+lto = "thin"
