@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""Profile size, wall time, CPU time and maximum RSS with GNU time on Linux."""
+"""Profile size, wall time, CPU time and maximum RSS with wait4 on Linux."""
 from pathlib import Path
-import argparse, subprocess, tempfile, statistics, csv, sys
+import argparse, subprocess, tempfile, statistics, csv, sys, os, time
 
 def measure(cmd, report):
-    subprocess.run(["/usr/bin/time","-f","%e %U %S %M","-o",report,*map(str,cmd)],check=True)
-    return [float(x) for x in report.read_text().split()]
+    start=time.perf_counter()
+    p=subprocess.Popen(list(map(str,cmd)))
+    _,status,usage=os.wait4(p.pid,0)
+    p.returncode=os.waitstatus_to_exitcode(status)
+    if p.returncode:raise subprocess.CalledProcessError(p.returncode,cmd)
+    return [time.perf_counter()-start,usage.ru_utime,usage.ru_stime,usage.ru_maxrss]
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("binary",type=Path);p.add_argument("files",nargs="+",type=Path)
