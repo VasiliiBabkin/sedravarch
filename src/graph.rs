@@ -1,6 +1,6 @@
 //! Bounded dependency DAG over already reconstructed blocks.
 use std::{collections::VecDeque,io};
-use crate::{invalid,encode};
+use crate::{invalid,encode_preset,Preset};
 pub const WINDOW:usize=128;
 pub const MAX_DEPTH:u8=4;
 const SAMPLES:usize=64;
@@ -13,7 +13,9 @@ impl History {
         if self.entries.len()==WINDOW {self.entries.pop_front();}
         self.entries.push_back(Entry{data:d.to_vec(),crc,depth});
     }
-    pub(crate) fn choose(&self,d:&[u8],crc:u32)->(u8,Vec<u8>,u8) {
+    #[cfg(test)]
+    pub(crate) fn choose(&self,d:&[u8],crc:u32)->(u8,Vec<u8>,u8){self.choose_with(d,crc,Preset::Deep,None)}
+    pub(crate) fn choose_with(&self,d:&[u8],crc:u32,preset:Preset,precomputed:Option<(u8,Vec<u8>)>)->(u8,Vec<u8>,u8) {
         // A 2-byte exact reference is minimal for nontrivial blocks. Prefer shallow bases.
         if d.len()>2 {
             if let Some((i,e))=self.entries.iter().rev().enumerate()
@@ -22,9 +24,9 @@ impl History {
                 return (14,((i+1) as u16).to_le_bytes().to_vec(),e.depth+1);
             }
         }
-        let (tag,p)=encode(d);
+        let (tag,p)=precomputed.unwrap_or_else(||encode_preset(d,preset));
         let mut best=(tag,p,0);
-        if best.1.len()<=6 {return best;}
+        if best.1.len()<=6 || preset==Preset::Fast {return best;}
         let mut candidates=Vec::new();
         for (i,e) in self.entries.iter().rev().enumerate() {
             if e.depth>=MAX_DEPTH || e.data.len()!=d.len() {continue;}
@@ -32,7 +34,7 @@ impl History {
             if score>=48 {candidates.push((std::cmp::Reverse(score),e.depth,i));}
         }
         candidates.sort_unstable();
-        for (_,_,i) in candidates.into_iter().take(CANDIDATES) {
+        for (_,_,i) in candidates.into_iter().take(if preset==Preset::Extreme{8}else if preset==Preset::Balanced{1}else{CANDIDATES}) {
             let e=&self.entries[self.entries.len()-1-i];
             if let Some(p)=patch(&e.data,d,i+1,best.1.len()) {
                 best=(15,p,e.depth+1);
