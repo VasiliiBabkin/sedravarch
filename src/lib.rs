@@ -7,6 +7,26 @@ pub mod archive;
 use std::io::{self, BufReader, Read, Write};
 
 pub const BLOCK: usize = 65_536;
+pub const MAX_THREADS:usize=8;
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]
+pub enum Preset { Fast, Balanced, Deep, Extreme }
+impl std::str::FromStr for Preset {
+    type Err=io::Error;
+    fn from_str(s:&str)->io::Result<Self>{
+        match s { "fast"=>Ok(Self::Fast),"balanced"=>Ok(Self::Balanced),"deep"=>Ok(Self::Deep),"extreme"=>Ok(Self::Extreme),_=>Err(invalid("unknown compression preset")) }
+    }
+}
+#[derive(Debug,Clone,Copy)]
+pub struct Options {pub preset:Preset,pub threads:usize,pub mode:chunking::Mode,pub dependencies:bool}
+impl Default for Options{
+    fn default()->Self{Self{preset:Preset::Deep,threads:1,mode:chunking::Mode::Adaptive,dependencies:true}}
+}
+impl Options {
+    pub fn validate(self)->io::Result<Self>{
+        if !(1..=MAX_THREADS).contains(&self.threads){return Err(invalid("threads must be 1..8"));}
+        Ok(self)
+    }
+}
 const MAGIC: &[u8; 8] = b"SDARCH\x04\x00";
 const V3_MAGIC: &[u8; 8] = b"SDARCH\x03\x00";
 const V2_MAGIC: &[u8; 8] = b"SDARCH\x02\x00";
@@ -84,7 +104,27 @@ fn delta(data: &[u8]) -> Vec<u8> {
     let mut prev = 0u8;
     data.iter().map(|&b| { let v = b.wrapping_sub(prev); prev = b; v }).collect()
 }
-fn encode(data: &[u8]) -> (u8, Vec<u8>) {
+#[cfg(test)]
+fn encode(data:&[u8])->(u8,Vec<u8>){encode_preset(data,Preset::Deep)}
+fn consider(best:&mut (u8,Vec<u8>),tag:u8,entropy_tag:u8,payload:Vec<u8>,use_entropy:bool){
+    if use_entropy {
+        if let Some(p)=entropy::encode_below(&payload,best.1.len()){*best=(entropy_tag,p);}
+    }
+    if payload.len()<best.1.len(){*best=(tag,payload);}
+}
+fn encode_preset(data: &[u8],preset:Preset) -> (u8, Vec<u8>) {
+    if preset==Preset::Fast || preset==Preset::Balanced {
+        let mut best=(0,data.to_vec());
+        let entropy=preset==Preset::Balanced;
+        let search=if entropy{8}else{1};
+        consider(&mut best,1,6,rle(data),entropy);
+        if entropy {if let Some(p)=entropy::encode_below(data,best.1.len()){best=(5,p);}}
+        consider(&mut best,10,12,dictionary::encode_search(data,search,entropy),entropy);
+        let diff=delta(data);
+        consider(&mut best,3,8,rle(&diff),entropy);
+        if entropy {consider(&mut best,11,13,dictionary::encode_search(&diff,search,true),true);}
+        return best;
+    }
     let mut best = (0, data.to_vec());
     let diff = delta(data);
     for (tag, payload) in [(0,data.to_vec()),(1,rle(data)),(2,lz(data)),(3,rle(&diff)),(4,lz(&diff))] {
@@ -98,6 +138,11 @@ fn encode(data: &[u8]) -> (u8, Vec<u8>) {
             best = (tag+2,encoded);
         }
         if payload.len() < best.1.len() { best = (tag,payload); }
+    }
+    if preset==Preset::Extreme {
+        for (tag,p) in [(10,dictionary::encode_search(data,128,true)),(11,dictionary::encode_search(&diff,128,true))]{
+            consider(&mut best,tag,tag+2,p,true);
+        }
     }
     best
 }
@@ -165,27 +210,52 @@ pub fn compress(input: impl Read, output: impl Write) -> io::Result<()> {
 pub fn compress_with_mode(input: impl Read, output: impl Write, mode:chunking::Mode) -> io::Result<()> {
     compress_with_options(input,output,mode,true)
 }
-pub fn compress_with_options(input: impl Read, mut output: impl Write, mode:chunking::Mode, dependencies:bool) -> io::Result<()> {
-    output.write_all(if dependencies { MAGIC } else { V3_MAGIC })?;
+pub fn compress_with_options(input:impl Read,output:impl Write,mode:chunking::Mode,dependencies:bool)->io::Result<()>{
+    compress_config(input,output,Options{mode,dependencies,..Options::default()})
+}
+pub fn compress_config(input:impl Read,mut output:impl Write,opts:Options)->io::Result<()>{
+    let opts=opts.validate()?;
+    output.write_all(if opts.dependencies { MAGIC } else { V3_MAGIC })?;
     let mut history=graph::History::new();
     let mut input=BufReader::with_capacity(BLOCK,input);
-    let mut buf=Vec::with_capacity(BLOCK);
-    let (mut total, mut blocks, mut stream_crc) = (0u64,0u64,!0u32);
-    loop {
-        chunking::read_chunk(&mut input,&mut buf,mode)?;
-        let n=buf.len();
-        if n == 0 { break; }
-        total = total.checked_add(n as u64).ok_or_else(|| invalid("size overflow"))?;
-        blocks += 1;
-        stream_crc = crc_update(stream_crc,&buf[..n]);
-        let crc=crc32(&buf);
-        let (tag,payload,depth)=if dependencies { history.choose(&buf,crc) } else { let (tag,p)=encode(&buf); (tag,p,0) };
-        if dependencies { history.push(&buf,crc,depth); }
-        output.write_all(&[tag])?;
-        output.write_all(&(n as u32).to_le_bytes())?;
-        output.write_all(&(payload.len() as u32).to_le_bytes())?;
-        output.write_all(&crc.to_le_bytes())?;
-        output.write_all(&payload)?;
+    let (mut total,mut blocks,mut stream_crc)=(0u64,0u64,!0u32);
+    loop{
+        let mut batch=Vec::with_capacity(opts.threads);
+        for _ in 0..opts.threads{
+            let mut buf=Vec::with_capacity(BLOCK);
+            chunking::read_chunk(&mut input,&mut buf,opts.mode)?;
+            if buf.is_empty(){break;}
+            batch.push(buf);
+        }
+        if batch.is_empty(){break;}
+        // Parallel independent candidates; dependencies and stream CRC committed in order.
+        // Serial path avoids speculative work on exact duplicates.
+        let candidates=if opts.threads>1 && batch.len()>1{
+            std::thread::scope(|scope|->io::Result<Vec<(u8,Vec<u8>)>>{
+                let jobs:Vec<_>=batch.iter().map(|d|scope.spawn(move||encode_preset(d,opts.preset))).collect();
+                jobs.into_iter().map(|j|j.join().map_err(|_|io::Error::other("compression worker panicked"))).collect()
+            })?
+        }else{Vec::new()};
+        let mut candidates=candidates.into_iter();
+        for buf in batch{
+            let n=buf.len();
+            total=total.checked_add(n as u64).ok_or_else(||invalid("size overflow"))?;
+            blocks+=1;
+            stream_crc=crc_update(stream_crc,&buf);
+            let crc=crc32(&buf);
+            let precomputed=candidates.next();
+            let (tag,payload,depth)=if opts.dependencies{
+                history.choose_with(&buf,crc,opts.preset,precomputed)
+            }else{
+                let (tag,p)=precomputed.unwrap_or_else(||encode_preset(&buf,opts.preset));(tag,p,0)
+            };
+            if opts.dependencies{history.push(&buf,crc,depth);}
+            output.write_all(&[tag])?;
+            output.write_all(&(n as u32).to_le_bytes())?;
+            output.write_all(&(payload.len() as u32).to_le_bytes())?;
+            output.write_all(&crc.to_le_bytes())?;
+            output.write_all(&payload)?;
+        }
     }
     output.write_all(&[255])?;
     output.write_all(&total.to_le_bytes())?;
@@ -328,6 +398,30 @@ mod tests {
         compress_with_options(&d[..],&mut a,chunking::Mode::Fixed,false).unwrap();
         assert_eq!(&a[..8],V3_MAGIC);
         let mut out=Vec::new();decompress(&a[..],&mut out,d.len() as u64).unwrap();assert_eq!(out,d);
+    }
+    #[test] fn presets_threads_deterministic(){
+        let mut x=123456u32;
+        let base:Vec<u8>=(0..BLOCK).map(|_|{x^=x<<13;x^=x>>17;x^=x<<5;x as u8}).collect();
+        let mut d=base.clone();d.extend(&base);d.extend(b"SedravArch ".repeat(6000));d.extend(&base);
+        for preset in [Preset::Fast,Preset::Balanced,Preset::Deep,Preset::Extreme] {
+            let mut expected=Vec::new();
+            for threads in [1,2,4,8] {
+                let mut a=Vec::new();
+                compress_config(&d[..],&mut a,Options{preset,threads,..Options::default()}).unwrap();
+                if threads==1{expected=a.clone();}else{assert_eq!(a,expected);}
+                let mut out=Vec::new();decompress(&a[..],&mut out,d.len() as u64).unwrap();assert_eq!(out,d);
+            }
+        }
+    }
+    #[test] fn thread_limits(){
+        for threads in [0,9,usize::MAX] {
+            let mut a=Vec::new();
+            assert!(compress_config(&b"data"[..],&mut a,Options{threads,..Options::default()}).is_err());assert!(a.is_empty());
+        }
+    }
+    #[test] fn extreme_independent_not_larger_than_deep(){
+        let d=b"the quick brown fox jumps over the lazy dog".repeat(1000);
+        assert!(encode_preset(&d,Preset::Extreme).1.len()<=encode_preset(&d,Preset::Deep).1.len());
     }
     #[test] fn invalid_match() { assert!(decode(2,&[128,0,0],3).is_err()); }
     #[test] fn invalid_rle() { assert!(decode(1,&[0,1],1).is_err()); }
