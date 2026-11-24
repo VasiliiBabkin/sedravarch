@@ -42,6 +42,8 @@ fn tree_write(nodes:&[Node], i:usize, bits:&mut Bits, path:&mut Vec<bool>, codes
 }
 pub(crate) fn encode_below(data:&[u8], limit:usize) -> Option<Vec<u8>> {
     assert!(!data.is_empty());
+    // Four length bytes plus at least nine tree bits: no payload below six bytes.
+    if limit<=6 {return None;}
     let mut freq=[0u32;256];
     for &b in data { freq[b as usize]+=1; }
     let mut heap=BinaryHeap::new();
