@@ -43,21 +43,23 @@ fn candidate(
         }
     }
     let mut try_model = |bytes: &[u8], tag| {
-        if bytes.len() < 16 || !options.rans {
+        if bytes.len() < 16 {
             return;
         }
+        let model = entropy::Histogram::new(bytes);
         for precision in [8, 10, 12] {
-            let payload = entropy::encode(bytes, precision);
-            if payload.len() < best.payload.len() {
+            if let Some(payload) = model.encode(bytes, precision, best.payload.len()) {
                 best.tag = tag;
                 best.payload = payload;
             }
         }
     };
-    try_model(data, 1);
-    if options.predict {
-        for (i, &lag) in LAGS.iter().enumerate() {
-            try_model(&predict::residual(data, lag), 4 + i as u8);
+    if options.rans {
+        try_model(data, 1);
+        if options.predict {
+            for (i, &lag) in LAGS.iter().enumerate() {
+                try_model(&predict::residual(data, lag), 4 + i as u8);
+            }
         }
     }
     if options.delta {

@@ -325,8 +325,14 @@ mod fuzz {
             ..Options::default()
         };
         let archive = encode(&[&periodic, &periodic, &[0x33; 4096]], options).unwrap();
+        let base: Vec<_> = (0..384).map(|_| random(&mut seed) as u8).collect();
+        let mut changed = base.clone();
+        changed.splice(187..191, [13, 17, 23]);
+        let edits = encode(&[&base, &changed], options).unwrap();
+        assert_eq!(Archive::open(&edits, MAX_DATA).unwrap().stats().1[3], 1);
+        let seeds = [archive, edits];
         for case in 0..20_000 {
-            let mut bytes = archive.clone();
+            let mut bytes = seeds[case % seeds.len()].clone();
             let end = bytes.len() - 4;
             for _ in 0..1 + case % 5 {
                 let position = 8 + random(&mut seed) % (end - 8);
