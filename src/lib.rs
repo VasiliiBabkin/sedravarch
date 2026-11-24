@@ -75,8 +75,9 @@ fn encode(data: &[u8]) -> (u8, Vec<u8>) {
     let mut best = (0, data.to_vec());
     let diff = delta(data);
     for (tag, payload) in [(0,data.to_vec()),(1,rle(data)),(2,lz(data)),(3,rle(&diff)),(4,lz(&diff))] {
-        let encoded = entropy::encode(&payload);
-        if encoded.len() < best.1.len() { best = (tag+5,encoded); }
+        if let Some(encoded) = entropy::encode_below(&payload,best.1.len()) {
+            best = (tag+5,encoded);
+        }
         if payload.len() < best.1.len() { best = (tag,payload); }
     }
     best
