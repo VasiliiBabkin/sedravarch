@@ -180,6 +180,9 @@ impl eframe::App for Desktop{
     fn update(&mut self,ctx:&egui::Context,_frame:&mut eframe::Frame){
         self.poll(ctx);
         let busy=self.job.is_some();
+        if busy && ctx.input(|i|i.viewport().close_requested()) {
+            ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+        }
         egui::TopBottomPanel::top("header").show(ctx,|ui|{
             ui.horizontal(|ui|{
                 ui.heading(egui::RichText::new("SedravArch").color(egui::Color32::from_rgb(90,210,180)));
@@ -220,6 +223,13 @@ fn main()->eframe::Result<()>{
 #[cfg(test)]
 mod tests{
     use super::*;
+    #[test] fn headless_ui_frames(){
+        let ctx=egui::Context::default();let mut app=Desktop::default();
+        for page in [Page::Browse,Page::Create] {
+            app.page=page;
+            let _=ctx.run(egui::RawInput::default(),|ctx|{egui::CentralPanel::default().show(ctx,|ui|match app.page{Page::Browse=>app.browse(ui,ctx),Page::Create=>app.create(ui,ctx)});});
+        }
+    }
     #[test] fn formatting(){assert_eq!(size(1024),"1.0 КиБ");assert_eq!(size(0),"0 Б");}
     #[test] fn operation_pipeline(){
         let root=std::env::temp_dir().join(format!("sedravarch-desktop-test-{}",std::process::id()));
