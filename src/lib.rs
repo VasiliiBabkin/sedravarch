@@ -3,6 +3,7 @@ mod graph;
 mod entropy;
 mod dictionary;
 pub mod chunking;
+pub mod archive;
 use std::io::{self, BufReader, Read, Write};
 
 pub const BLOCK: usize = 65_536;
