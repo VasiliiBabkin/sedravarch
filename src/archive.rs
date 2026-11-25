@@ -125,6 +125,46 @@ pub fn write_new_file(target:&Path, write:impl FnOnce(&mut File)->io::Result<()>
     Ok(())
 }
 
+// Linux no-replace directory publication. Other platforms retain the
+// existing extraction behavior until their native primitives are tested.
+#[cfg(target_os="linux")]
+fn write_new_dir(target:&Path, write:impl FnOnce(&Path)->io::Result<()>)->io::Result<()> {
+    use std::{ffi::CString,os::unix::{ffi::OsStrExt,fs::DirBuilderExt},sync::atomic::{AtomicU64,Ordering}};
+    static NEXT:AtomicU64=AtomicU64::new(0);
+    extern "C" {fn renameat2(olddirfd:i32,oldpath:*const std::ffi::c_char,newdirfd:i32,newpath:*const std::ffi::c_char,flags:u32)->i32;}
+    let parent=target.parent().filter(|p|!p.as_os_str().is_empty()).unwrap_or(Path::new(".")).canonicalize()?;
+    let name=target.file_name().ok_or_else(||fail("invalid output name"))?;
+    let target=parent.join(name);
+    match fs::symlink_metadata(&target){
+        Ok(_)=>return Err(io::Error::new(io::ErrorKind::AlreadyExists,"output already exists")),
+        Err(e) if e.kind()==io::ErrorKind::NotFound=>{},
+        Err(e)=>return Err(e),
+    }
+    struct TempDir(Option<PathBuf>);
+    impl Drop for TempDir {fn drop(&mut self){if let Some(p)=&self.0{let _=fs::remove_dir_all(p);}}}
+    let mut temp=loop{
+        let id=NEXT.fetch_add(1,Ordering::Relaxed);
+        let p=parent.join(format!(".sedravarch-tree-{}-{id}",std::process::id()));
+        if p==target{continue;}
+        match fs::DirBuilder::new().mode(0o700).create(&p){
+            Ok(())=>break TempDir(Some(p)),
+            Err(e) if e.kind()==io::ErrorKind::AlreadyExists=>continue,
+            Err(e)=>return Err(e),
+        }
+    };
+    let stage=temp.0.as_ref().unwrap();
+    write(stage)?;
+    let old=CString::new(stage.as_os_str().as_bytes()).map_err(|_|fail("invalid stage path"))?;
+    let new=CString::new(target.as_os_str().as_bytes()).map_err(|_|fail("invalid target path"))?;
+    // Linux AT_FDCWD = -100; RENAME_NOREPLACE = 1. Both paths are absolute
+    // and CStrings remain alive for the call. Unsupported FS fails closed.
+    if unsafe{renameat2(-100,old.as_ptr(),-100,new.as_ptr(),1)}!=0{
+        return Err(io::Error::last_os_error());
+    }
+    temp.0=None;
+    Ok(())
+}
+
 pub struct Archive {file:File,entries:Vec<Entry>}
 impl Archive {
     pub fn open(path:&Path)->io::Result<Self>{
@@ -174,30 +214,36 @@ impl Archive {
     }
     pub fn extract(&mut self,root:&Path,max:u64)->io::Result<()>{
         self.budget(max)?;
-        // A new root prevents archived names from targeting preexisting symlinks/files.
-        // Caller must choose a trusted parent and avoid concurrent modifications.
-        let mut builder=fs::DirBuilder::new();
-        #[cfg(unix)] {use std::os::unix::fs::DirBuilderExt;builder.mode(0o700);}
-        builder.create(root)?;
-        let result=(||{
-            for e in self.entries.clone(){
-                let path=root.join(&e.path);
-                // Verify the ancestor chain again before each operation.
-                let mut parent=path.parent();
-                while let Some(p)=parent{
-                    let m=fs::symlink_metadata(p)?;
-                    if !m.is_dir() || m.file_type().is_symlink(){return Err(fail("unsafe extraction ancestor"));}
-                    if p==root{break;}
-                    parent=p.parent();
-                }
-                if e.directory {fs::create_dir(&path)?;}else{
-                    let f=OpenOptions::new().write(true).create_new(true).open(&path)?;
-                    self.decode_file(&e,BufWriter::new(f),max)?;
-                }
-            }Ok(())
-        })();
-        if result.is_err(){let _=fs::remove_dir_all(root);}
-        result
+        // Caller must choose a trusted parent and avoid concurrent changes.
+        #[cfg(target_os="linux")]
+        {write_new_dir(root,|stage|self.extract_into(stage,max))}
+        #[cfg(not(target_os="linux"))]
+        {
+            let mut builder=fs::DirBuilder::new();
+            #[cfg(unix)] {use std::os::unix::fs::DirBuilderExt;builder.mode(0o700);}
+            builder.create(root)?;
+            let result=self.extract_into(root,max);
+            if result.is_err(){let _=fs::remove_dir_all(root);}
+            result
+        }
+    }
+    fn extract_into(&mut self,root:&Path,max:u64)->io::Result<()>{
+        for e in self.entries.clone(){
+            let path=root.join(&e.path);
+            let mut parent=path.parent();
+            while let Some(p)=parent{
+                let m=fs::symlink_metadata(p)?;
+                if !m.is_dir() || m.file_type().is_symlink(){return Err(fail("unsafe extraction ancestor"));}
+                if p==root{break;}
+                parent=p.parent();
+            }
+            if e.directory {fs::create_dir(&path)?;}else{
+                let mut f=OpenOptions::new().write(true).create_new(true).open(&path)?;
+                self.decode_file(&e,BufWriter::new(&mut f),max)?;
+                f.sync_all()?;
+            }
+        }
+        Ok(())
     }
 }
 struct Counter<W>{inner:W,n:u64}
@@ -300,6 +346,31 @@ mod tests{
         write_new_file(&target,|f|f.write_all(b"complete")).unwrap();
         assert_eq!(fs::read(&target).unwrap(),b"complete");
         assert!(write_new_file(&target,|_|panic!("existing destination")).is_err());
+        assert_eq!(fs::read_dir(&base).unwrap().count(),1);
+    }
+    #[cfg(target_os="linux")]
+    #[test] fn staged_tree_publication(){
+        let base=std::env::temp_dir().join(format!("sedravarch-tree-test-{}",std::process::id()));
+        fs::create_dir(&base).unwrap();
+        struct Clean(PathBuf);
+        impl Drop for Clean{fn drop(&mut self){let _=fs::remove_dir_all(&self.0);}}
+        let _clean=Clean(base.clone());
+        let target=base.join("output");
+        assert!(write_new_dir(&target,|stage|{
+            fs::write(stage.join("file"),b"partial")?;
+            assert!(!target.exists());
+            Err(fail("injected extraction error"))
+        }).is_err());
+        assert!(!target.exists());
+        assert_eq!(fs::read_dir(&base).unwrap().count(),0);
+        assert!(write_new_dir(&target,|stage|{
+            fs::write(stage.join("file"),b"archive")?;
+            fs::create_dir(&target)
+        }).is_err());
+        assert_eq!(fs::read_dir(&target).unwrap().count(),0);
+        fs::remove_dir(&target).unwrap();
+        write_new_dir(&target,|stage|fs::write(stage.join("file"),b"complete")).unwrap();
+        assert_eq!(fs::read(target.join("file")).unwrap(),b"complete");
         assert_eq!(fs::read_dir(&base).unwrap().count(),1);
     }
     #[test] fn bad_paths(){
