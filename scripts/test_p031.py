@@ -20,7 +20,7 @@ SEED=20261125
 LIMIT=2*1024*1024
 rng=random.Random(SEED)
 stats={"valid_tag_fixtures":0,"targeted_rejections":0,"structured_mutations":0,
-       "random_payloads":0,"index_mutations":0,"accepted_mutations":0,
+       "random_payloads":0,"index_mutations":0,"legacy_embedded_rejections":0,"accepted_mutations":0,
        "enospc_write":0,"enospc_sync":0,"sigkill":0}
 def require(value,msg):
     if not value: raise AssertionError(msg)
@@ -157,6 +157,21 @@ with tempfile.TemporaryDirectory(prefix="sda-p031-") as tmp:
         require(run("extract",archive,out,LIMIT).returncode==1,"invalid index extracted")
         require(not out.exists(),"invalid index published root")
         stats["index_mutations"]+=1
+    # Container requires v4, while standalone legacy streams remain supported.
+    for version in (1,2,3):
+        inner=b"SDARCH"+bytes([version,0])+block(0,data,data)+b"\xff"
+        if version>=2:
+            inner+=struct.pack("<QQI",len(data),1,zlib.crc32(data))
+        archive.write_bytes(inner)
+        require(run("test",archive).returncode==0,"standalone legacy rejected")
+        archive.write_bytes(index_container(inner,[(0,b"file",len(data),8,len(inner))]))
+        require(run("list",archive).returncode==0,"valid outer index rejected")
+        for args in (("test",archive),("extract",archive,out,LIMIT),
+                     ("extract-file",archive,"file",out,LIMIT)):
+            p=run(*args)
+            require(p.returncode==1 and b"embedded stream must be v4" in p.stderr,"legacy embedded stream accepted")
+            require(not out.exists(),"legacy embedded stream published output")
+        stats["legacy_embedded_rejections"]+=3
     print("DECODER",json.dumps(stats),flush=True)
     source=root/"source";source.write_bytes(rng.randbytes(65536))
     packed=root/"packed";multi=root/"multi"
