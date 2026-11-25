@@ -89,6 +89,42 @@ fn decode_index(mut b:&[u8],start:u64)->io::Result<Vec<Entry>>{
     if !b.is_empty(){return Err(fail("trailing index data"));}
     validate(&entries,start)?;Ok(entries)
 }
+/// Publish a complete file without replacing an existing destination.
+/// Requires hard-link support and a trusted, stable parent directory.
+/// A process kill may leave a private temporary file, not a partial target.
+pub fn write_new_file(target:&Path, write:impl FnOnce(&mut File)->io::Result<()>)->io::Result<()> {
+    use std::sync::atomic::{AtomicU64,Ordering};
+    static NEXT:AtomicU64=AtomicU64::new(0);
+    let parent=target.parent().filter(|p|!p.as_os_str().is_empty()).unwrap_or(Path::new(".")).canonicalize()?;
+    let name=target.file_name().ok_or_else(||fail("invalid output name"))?;
+    let target=parent.join(name);
+    match fs::symlink_metadata(&target){
+        Ok(_)=>return Err(io::Error::new(io::ErrorKind::AlreadyExists,"output already exists")),
+        Err(e) if e.kind()==io::ErrorKind::NotFound=>{},
+        Err(e)=>return Err(e),
+    }
+    struct Temp(PathBuf);
+    impl Drop for Temp {fn drop(&mut self){let _=fs::remove_file(&self.0);}}
+    let (mut file,temp)=loop{
+        let id=NEXT.fetch_add(1,Ordering::Relaxed);
+        let p=parent.join(format!(".sedravarch-tmp-{}-{id}",std::process::id()));
+        if p==target{continue;}
+        let mut options=OpenOptions::new();
+        options.write(true).create_new(true);
+        #[cfg(unix)] {use std::os::unix::fs::OpenOptionsExt;options.mode(0o600);}
+        match options.open(&p){
+            Ok(f)=>break (f,Temp(p)),
+            Err(e) if e.kind()==io::ErrorKind::AlreadyExists=>continue,
+            Err(e)=>return Err(e),
+        }
+    };
+    let result=write(&mut file).and_then(|_|file.sync_all());
+    drop(file);
+    result?;
+    fs::hard_link(&temp.0,&target)?;
+    Ok(())
+}
+
 pub struct Archive {file:File,entries:Vec<Entry>}
 impl Archive {
     pub fn open(path:&Path)->io::Result<Self>{
@@ -134,10 +170,7 @@ impl Archive {
     pub fn extract_file(&mut self,name:&str,out:&Path,max:u64)->io::Result<()>{
         let e=self.entries.iter().find(|e|e.path==name && !e.directory).cloned().ok_or_else(||fail("file not found"))?;
         if e.size>max{return Err(fail("file output limit exceeded"));}
-        let f=OpenOptions::new().write(true).create_new(true).open(out)?;
-        let result=self.decode_file(&e,BufWriter::new(f),max);
-        if result.is_err(){let _=fs::remove_file(out);}
-        result
+        write_new_file(out,|f|self.decode_file(&e,BufWriter::new(f),max))
     }
     pub fn extract(&mut self,root:&Path,max:u64)->io::Result<()>{
         self.budget(max)?;
@@ -219,8 +252,7 @@ pub fn create_config(output:&Path,inputs:&[PathBuf],opts:crate::Options)->io::Re
     }
     let mut seen=BTreeMap::new();
     for s in &sources{if seen.insert(portable_key(&s.entry.path),()).is_some(){return Err(fail("duplicate input name"));}}
-    let mut file=OpenOptions::new().write(true).create_new(true).open(&target)?;
-    let result=(||{
+    write_new_file(&target,|file|{
         file.write_all(MAGIC)?;
         for s in &mut sources{
             if s.entry.directory{continue;}
@@ -229,7 +261,7 @@ pub fn create_config(output:&Path,inputs:&[PathBuf],opts:crate::Options)->io::Re
             if input.metadata()?.len()!=s.entry.size{return Err(fail("source size changed"));}
             s.entry.offset=file.stream_position()?;
             let mut limited=(&mut input).take(s.entry.size);
-            crate::compress_config(&mut limited,BufWriter::new(&mut file),opts)?;
+            crate::compress_config(&mut limited,BufWriter::new(&mut *file),opts)?;
             if limited.limit()!=0 || input.read(&mut [0])?!=0{return Err(fail("source size changed"));}
             s.entry.packed=file.stream_position()?.checked_sub(s.entry.offset).ok_or_else(||fail("extent overflow"))?;
         }
@@ -239,15 +271,37 @@ pub fn create_config(output:&Path,inputs:&[PathBuf],opts:crate::Options)->io::Re
         let index=encode_index(&entries)?;
         file.write_all(&index)?;file.write_all(END)?;file.write_all(&(index.len() as u64).to_le_bytes())?;
         file.write_all(&crc32(&index).to_le_bytes())?;file.flush()
-    })();
-    drop(file);
-    if result.is_err(){let _=fs::remove_file(&target);}
-    result
+    })
 }
 #[cfg(test)]
 mod tests{
     use super::*;
     fn ent(path:&str,directory:bool)->Entry{Entry{path:path.into(),directory,size:0,modified:None,offset:if directory{0}else{8},packed:if directory{0}else{29}}}
+    #[test] fn staged_file_publication(){
+        let base=std::env::temp_dir().join(format!("sedravarch-staging-test-{}",std::process::id()));
+        fs::create_dir(&base).unwrap();
+        struct Clean(PathBuf);
+        impl Drop for Clean{fn drop(&mut self){let _=fs::remove_dir_all(&self.0);}}
+        let _clean=Clean(base.clone());
+        let target=base.join("output");
+        assert!(write_new_file(&target,|f|{
+            f.write_all(b"partial")?;
+            assert!(!target.exists());
+            Err(fail("injected write error"))
+        }).is_err());
+        assert!(!target.exists());
+        assert_eq!(fs::read_dir(&base).unwrap().count(),0);
+        assert!(write_new_file(&target,|f|{
+            f.write_all(b"archive")?;
+            fs::write(&target,b"concurrent destination")
+        }).is_err());
+        assert_eq!(fs::read(&target).unwrap(),b"concurrent destination");
+        fs::remove_file(&target).unwrap();
+        write_new_file(&target,|f|f.write_all(b"complete")).unwrap();
+        assert_eq!(fs::read(&target).unwrap(),b"complete");
+        assert!(write_new_file(&target,|_|panic!("existing destination")).is_err());
+        assert_eq!(fs::read_dir(&base).unwrap().count(),1);
+    }
     #[test] fn bad_paths(){
         for s in ["","/etc/passwd","../x","x/../y","a//b","C:/x","a\\b","a:stream","CON","nul.txt","COM¹.txt","x.","x ","a\nb"] {assert!(validate_path(s).is_err(),"{s}");}
         assert!(validate_path("папка/текст.txt").is_ok());
