@@ -7,6 +7,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 import zlib
 
 binary=Path(sys.argv[1]).resolve()
@@ -88,4 +89,25 @@ with tempfile.TemporaryDirectory(prefix="sda-p03-") as tmp:
         else:
             check(not out.exists(),"rejected stream published output")
     check(not list(root.glob(".sedravarch-tmp-*")),"temporary output leaked on normal exit")
+    if sys.platform.startswith("linux"):
+        fifo=root/"blocked-input";os.mkfifo(fifo)
+        fd=os.open(fifo,os.O_RDWR)
+        killed=root/"killed-output"
+        p=subprocess.Popen([str(binary),"pack",str(fifo),str(killed)],
+                           stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        try:
+            deadline=time.monotonic()+5
+            while not list(root.glob(".sedravarch-tmp-*")) and p.poll() is None and time.monotonic()<deadline:
+                time.sleep(.02)
+            check(bool(list(root.glob(".sedravarch-tmp-*"))),"staging not reached")
+            check(not killed.exists(),"partial output visible before kill")
+            p.kill();p.communicate(timeout=5)
+            check(not killed.exists(),"partial output visible after kill")
+        finally:
+            if p.poll() is None:
+                p.kill();p.communicate(timeout=5)
+            os.close(fd)
+            for temp in root.glob(".sedravarch-tmp-*"):
+                temp.unlink()
+
 print(f"{checks} P03 assertions PASS")
