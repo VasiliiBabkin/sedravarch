@@ -81,7 +81,7 @@ def digest(path):
 with tempfile.TemporaryDirectory(prefix="sda-p031-") as tmp:
     root=Path(tmp).resolve()
     archive=root/"input.sda";out=root/"output"
-    def decode(blob,expected=None,must_reject=False):
+    def decode(blob,expected=None,must_reject=False,error=None):
         archive.write_bytes(blob)
         p=run("unpack",archive,out,LIMIT)
         if p.returncode==0:
@@ -93,6 +93,7 @@ with tempfile.TemporaryDirectory(prefix="sda-p031-") as tmp:
         else:
             require(expected is None or must_reject or p.stderr,"missing error")
             require(not out.exists(),"failure published partial output")
+            if error is not None: require(error.encode() in p.stderr,(error,p.stderr))
         require(not list(root.glob(".sedravarch-*")),"staging leak on ordinary exit")
         return p.returncode
     all_fixtures=[]
@@ -102,26 +103,31 @@ with tempfile.TemporaryDirectory(prefix="sda-p031-") as tmp:
         all_fixtures.append((tag,blob,data))
         stats["valid_tag_fixtures"]+=1
     require({t for t,_,_ in all_fixtures}==set(range(16)),"missing tag")
+    # Explicit expected diagnostic prevents a bad footer from masking
+    # acceptance of the malformed interior structure.
+    eight=b"A"*8
     bad=[
-        block(1,b"\x00A",b"A"*8),block(1,b"\xffA",b"A"*8),
-        block(2,b"\x80\x00\x00",b"A"*8),
-        block(2,b"\x7fA",b"A"*8),
-        block(10,b"\xff\x81\x00\x01\x00",b"A"*8),
-        block(10,b"\x00A\xff\xff\xff\x01\x00",b"A"*8),
-        block(5,struct.pack("<I",2**32-1)+b"\x80",b"A"*8),
-        block(5,struct.pack("<I",8)+b"\x00"*32,b"A"*64),
-        block(14,b"\x01\x00",b"A"*8),
-        block(15,struct.pack("<HHH",1,0,1)+b"B",b"A"*8),
-        block(16,b"A",b"A"),block(0,b"A",b"A",n=65537),
-        block(0,b"A",b"A",n=0),block(0,b"A",b"A",crc=0)]
-    for rec in bad:
-        decode(stream([rec],b""),must_reject=True)
+        (block(1,b"\x00A",eight),eight,"invalid RLE length"),
+        (block(1,b"\xffA",eight),eight,"invalid RLE length"),
+        (block(2,b"\x80\x00\x00",eight),eight,"invalid match distance"),
+        (block(2,b"\x7fA",eight),eight,"invalid literal"),
+        (block(10,b"\xff\x81\x00\x01\x00",eight),eight,"noncanonical long match"),
+        (block(10,b"\x00A\xff\xff\xff\x01\x00",eight),eight,"invalid smart match"),
+        (block(5,struct.pack("<I",2**32-1)+b"\x80",eight),eight,"Huffman output limit"),
+        (block(5,struct.pack("<I",8)+b"\x00"*32,b"A"*64),b"A"*64,"Huffman tree limit"),
+        (block(14,b"\x01\x00",eight),eight,"dependency outside history"),
+        (block(15,struct.pack("<HHH",1,0,1)+b"B",eight),eight,"dependency outside history"),
+        (block(16,b"A",b"A"),b"A","invalid block header"),
+        (block(0,b"A",b"A",n=65537),b"A","invalid block header"),
+        (block(0,b"A",b"A",n=0),b"A","invalid block header"),
+        (block(0,b"A",b"A",crc=0),b"A","checksum mismatch")]
+    for rec,d,error in bad:
+        decode(stream([rec],d),must_reject=True,error=error)
         stats["targeted_rejections"]+=1
-    # Valid history followed by illegal patch range and excessive depth.
     base=block(0,b"A"*16,b"A"*16)
-    for records in ([base,block(15,struct.pack("<HHH",1,16,1)+b"B",b"A"*16)],
-                    [base]+[block(14,b"\x01\x00",b"A"*16)]*5):
-        decode(stream(records,b"A"*16*len(records)),must_reject=True)
+    for records,error in (([base,block(15,struct.pack("<HHH",1,16,1)+b"B",b"A"*16)],"invalid patch range"),
+                          ([base]+[block(14,b"\x01\x00",b"A"*16)]*5,"dependency depth or length mismatch")):
+        decode(stream(records,b"A"*16*len(records)),must_reject=True,error=error)
         stats["targeted_rejections"]+=1
     # Mutate across all real tag fixtures, including interior payloads.
     for tag,blob,data in all_fixtures:
