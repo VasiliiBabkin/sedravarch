@@ -62,7 +62,9 @@ def worker(phase,source,packed,codec,level,mode,warm,reps):
     with packed.open('wb') as f:f.write(memoryview(buf).cast('B')[:written])
    else:require(equal_file(buf,written,packed if enc else source),'byte comparison')
    if i>=warm:results.append(dict(wall_ns=wall,cpu_ns=cpu))
-   if not pre:buf=None
+   if not pre:
+    if enc:dest=None
+    buf=None
  finally:free(h)
  print(json.dumps(dict(calls=results,checks=reps if not enc else 0,packed_bytes=packed.stat().st_size)))
 def limits():
@@ -71,7 +73,9 @@ def procstat(cpu):
  lines=pathlib.Path('/proc/stat').read_text().splitlines()
  line=next(x for x in lines if x.startswith('cpu'+str(cpu)+' ')).split()
  freq=pathlib.Path(f'/sys/devices/system/cpu/cpu{cpu}/cpufreq/scaling_cur_freq')
- return dict(cpu_ticks=list(map(int,line[1:])),load=pathlib.Path('/proc/loadavg').read_text().strip(),freq_khz=int(freq.read_text()) if freq.is_file() else None)
+ try:khz=int(freq.read_text())
+ except (OSError,ValueError):khz=None
+ return dict(cpu_ticks=list(map(int,line[1:])),load=pathlib.Path('/proc/loadavg').read_text().strip(),freq_khz=khz)
 def run(cmd,w,timer,stdout=None):
  with (w/'error').open('wb') as err, (w/'stdout' if stdout is None else stdout).open('wb') as out:
   t=time.perf_counter_ns();p=subprocess.Popen([str(timer),'-f','%M','-o',str(w/'rss'),'--',*cmd],cwd=w,stdout=out,stderr=err,preexec_fn=limits,start_new_session=True)
