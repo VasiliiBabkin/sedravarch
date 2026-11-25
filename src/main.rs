@@ -1,5 +1,5 @@
 use sedravarch::{archive,Options};
-use std::{env, fs::{self,File,OpenOptions}, io::{self,BufReader,BufWriter}, path::{Path,PathBuf}, process::ExitCode};
+use std::{env, fs::File, io::{self,BufReader,BufWriter}, path::{Path,PathBuf}, process::ExitCode};
 fn run() -> io::Result<()> {
     let args: Vec<_> = env::args_os().skip(1).collect();
     let usage = || io::Error::new(io::ErrorKind::InvalidInput,
@@ -21,10 +21,7 @@ fn run() -> io::Result<()> {
             let opts=profile()?;
             let input=BufReader::new(File::open(&args[3])?);
             let path=Path::new(&args[4]);
-            let file=OpenOptions::new().write(true).create_new(true).open(path)?;
-            let result=sedravarch::compress_config(input,BufWriter::new(file),opts);
-            if result.is_err(){let _=fs::remove_file(path);}
-            result
+            archive::write_new_file(path,|file|sedravarch::compress_config(input,BufWriter::new(file),opts))
         }
         Some("create") if args.len()>=3 => archive::create(Path::new(&args[1]),&args[2..].iter().map(PathBuf::from).collect::<Vec<_>>()),
         Some("list") if args.len()==2 => {
@@ -42,15 +39,13 @@ fn run() -> io::Result<()> {
             let max = limit(3)?;
             let input = BufReader::new(File::open(&args[1])?);
             let path = Path::new(&args[2]);
-            let file = OpenOptions::new().write(true).create_new(true).open(path)?;
+            archive::write_new_file(path,|file|{
             let mut writer = BufWriter::new(file);
-            let result = if mode=="pack" { sedravarch::compress(input,&mut writer) }
+            if mode=="pack" { sedravarch::compress(input,&mut writer) }
                 else if mode=="pack-independent" { sedravarch::compress_with_options(input,&mut writer,sedravarch::chunking::Mode::Adaptive,false) }
                 else if mode=="pack-fixed" { sedravarch::compress_with_mode(input,&mut writer,sedravarch::chunking::Mode::Fixed) }
-                else { sedravarch::decompress(input,&mut writer,max) };
-            drop(writer);
-            if result.is_err() { let _ = fs::remove_file(path); }
-            result
+                else { sedravarch::decompress(input,&mut writer,max) }
+            })
         }
         _ => Err(usage()),
     }
