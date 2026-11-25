@@ -197,8 +197,13 @@ impl Archive {
         if e.directory || e.size>max{return Err(fail("file output limit or directory"));}
         self.file.seek(SeekFrom::Start(e.offset))?;
         let mut input=(&mut self.file).take(e.packed);
+        // Multi-file container v1 specifies complete v4 streams. In
+        // particular, accepting legacy v1 here loses stream-level integrity.
+        let mut header=[0u8;8];
+        input.read_exact(&mut header)?;
+        if &header!=b"SDARCH\x04\x00"{return Err(fail("embedded stream must be v4"));}
         let mut counter=Counter{inner:output,n:0};
-        crate::decompress(BufReader::new(&mut input),&mut counter,e.size)?;
+        crate::decompress(BufReader::new((&header[..]).chain(&mut input)),&mut counter,e.size)?;
         if counter.n!=e.size || input.limit()!=0{return Err(fail("file length mismatch"));}
         Ok(())
     }
