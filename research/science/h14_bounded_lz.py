@@ -107,7 +107,7 @@ def frame_decode(b):
  while len(out)<n:
   k,s=struct.unpack_from('<II',b,pos);pos+=8;assert pos+k<=len(b)
   m=min(B,n-len(out));assert s<=2*m+64
-  raw=zd(b[pos:pos+k],s);pos+=k
+  raw=zd(bytes(b[pos:pos+k]),s);pos+=k
   if mode==3:assert len(raw)==m;out.extend(raw)
   else:x,st=decode_inner(raw,m,mode);out.extend(x);stats.append(st)
  assert pos==len(b) and len(out)==n and zlib.crc32(out)==crc
